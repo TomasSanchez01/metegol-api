@@ -381,6 +381,24 @@ export class FootballApiServer {
     return teamData.map(({ team }) => team);
   }
 
+  async getTeamsByLeague(leagueId: number, season?: number): Promise<Team[]> {
+    try {
+      const currentSeason = season || new Date().getFullYear();
+      const teamData =
+        (await this.request<{ team: Team }[]>("/teams", {
+          league: leagueId,
+          season: currentSeason,
+        })) ?? [];
+      return teamData.map(({ team }) => team);
+    } catch (error) {
+      console.error(
+        `Error fetching teams for league ${leagueId}:`,
+        error
+      );
+      return [];
+    }
+  }
+
   async getAllLeagues(): Promise<League[]> {
     const leagueData =
       (await this.request<{ league: League }[]>("/leagues", {})) ?? [];
