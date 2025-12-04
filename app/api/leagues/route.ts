@@ -27,7 +27,7 @@ export async function GET(req: NextRequest) {
       console.log(
         "⚠️  No leagues found in Firestore, using static leagues as fallback"
       );
-      leagues = STATIC_LEAGUES.map((league) => ({
+      leagues = STATIC_LEAGUES.map(league => ({
         id: league.id,
         name: league.name,
         logo: league.logo,
@@ -38,7 +38,7 @@ export async function GET(req: NextRequest) {
     // Filtrar por país si se especificó y las ligas vienen de Firestore
     if (country && leagues.length > 0) {
       leagues = leagues.filter(
-        (league) => league.country.toLowerCase() === country.toLowerCase()
+        league => league.country.toLowerCase() === country.toLowerCase()
       );
     }
 
@@ -52,7 +52,7 @@ export async function GET(req: NextRequest) {
 
     if (country) {
       leagues = STATIC_LEAGUES.filter(
-        (league) => league.country.toLowerCase() === country.toLowerCase()
+        league => league.country.toLowerCase() === country.toLowerCase()
       );
     }
 

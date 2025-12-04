@@ -1,24 +1,15 @@
 import { NextRequest, NextResponse } from "next/server";
 import { FirestoreFootballService } from "@/lib/firestore-football-service";
-import { FastFootballApi } from "@/lib/client-api/FastFootballApi";
 import { Match } from "@/types/match";
 
-// Global instances to avoid Firebase reinitialization
+// Global instance to avoid Firebase reinitialization
 let globalFirestoreService: FirestoreFootballService | null = null;
-let globalFastApi: FastFootballApi | null = null;
 
 function getFirestoreService(): FirestoreFootballService {
   if (!globalFirestoreService) {
     globalFirestoreService = new FirestoreFootballService();
   }
   return globalFirestoreService;
-}
-
-function getFastApi(): FastFootballApi {
-  if (!globalFastApi) {
-    globalFastApi = new FastFootballApi();
-  }
-  return globalFastApi;
 }
 
 export async function GET(
@@ -31,7 +22,6 @@ export async function GET(
     const season = new Date().getFullYear();
 
     const firestoreService = getFirestoreService();
-    const fastApi = getFastApi();
 
     // Consultar Firestore primero para obtener información del equipo
     const teamInfo = await firestoreService.getTeamById(teamId);
@@ -63,10 +53,30 @@ export async function GET(
       );
       allMatches = await externalApi.getTeamAllMatches(teamId, season);
 
-      // Guardar partidos en Firestore
+      // Guardar partidos en Firestore (con detalles si están disponibles)
       if (allMatches.length > 0) {
-        await firestoreService.saveMatchesToFirestore(allMatches);
+        // Enriquecer con detalles si no los tienen
+        const enrichedMatches =
+          await firestoreService.enrichMatchesWithDetails(allMatches);
+        await firestoreService.saveMatchesToFirestore(enrichedMatches);
+        allMatches = enrichedMatches;
       }
+    } else {
+      // Si hay partidos en Firestore, enriquecer con detalles si faltan
+      // Solo para los primeros 10 partidos más recientes para mejorar rendimiento
+      const now = new Date();
+      const sortedMatches = allMatches.sort((a, b) => {
+        const dateA = new Date(a.fixture.date);
+        const dateB = new Date(b.fixture.date);
+        return dateB.getTime() - dateA.getTime(); // Más recientes primero
+      });
+
+      const recentMatches = sortedMatches.slice(0, 10);
+      const enrichedRecentMatches =
+        await firestoreService.enrichMatchesWithDetailsIfMissing(recentMatches);
+
+      // Combinar partidos enriquecidos con el resto
+      allMatches = [...enrichedRecentMatches, ...sortedMatches.slice(10)];
     }
 
     if (!allMatches || allMatches.length === 0) {
@@ -125,42 +135,9 @@ export async function GET(
       }
     });
 
-    // Get detailed data for first 10 matches only (to improve performance)
-    const recentMatches = sortedMatches.slice(0, 10);
-    const matchesWithStats = await Promise.all(
-      recentMatches.map(async (match) => {
-        try {
-          const [stats, events] = await Promise.all([
-            fastApi.getMatchStats(match.fixture.id),
-            fastApi.getMatchEvents(match.fixture.id),
-          ]);
-
-          return {
-            ...match,
-            statistics: stats,
-            events: events,
-          };
-        } catch (error) {
-          console.error(
-            `Error getting details for match ${match.fixture.id}:`,
-            error
-          );
-          return match; // Return match without detailed stats if there's an error
-        }
-      })
-    );
-
-    // Combine detailed matches with the rest
-    const allMatchesWithSomeStats = sortedMatches.map((match, index) => {
-      if (index < 10) {
-        return matchesWithStats[index];
-      }
-      return match;
-    });
-
     return NextResponse.json({
       team: finalTeamInfo,
-      matches: allMatchesWithSomeStats,
+      matches: sortedMatches,
       totalMatches: allMatches.length,
     });
   } catch (error) {

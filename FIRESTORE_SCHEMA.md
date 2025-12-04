@@ -30,8 +30,11 @@ firestore/
 ├── partidos/           # Colección de partidos/fixtures
 │   └── {partidoId}     # Documento por partido
 │
-└── standings/          # Colección de tablas de posiciones
-    └── {standingId}    # Documento por tabla de posiciones
+├── standings/          # Colección de tablas de posiciones
+│   └── {standingId}    # Documento por tabla de posiciones
+│
+└── empty_queries/      # Colección de consultas vacías (cache de "no hay partidos")
+    └── {queryKey}      # Documento por consulta vacía (ej: empty_fixtures_128_2025-11-10)
 ```
 
 ## 🔗 Relaciones entre Entidades
@@ -404,6 +407,33 @@ Liga (1) ──< (N) Standing
 - `ligaId` (ascending)
 - `temporada` (ascending)
 - `ligaId` + `temporada` (composite)
+
+---
+
+### 7. Colección: `empty_queries`
+
+Esta colección se usa para cachear consultas que no devolvieron resultados, evitando llamadas repetidas a la API externa cuando no hay partidos para una liga/fecha específica.
+
+**ID del documento**: `empty_fixtures_{leagueId}_{date}` (ej: `empty_fixtures_128_2025-11-10`)
+
+**Campos**:
+- `leagueId` (string): ID de la liga consultada
+- `date` (string): Fecha consultada (formato: YYYY-MM-DD)
+- `has_matches` (boolean): Indica si había partidos o no
+- `last_checked` (timestamp): Fecha de última verificación
+- `fecha_creacion` (timestamp): Fecha de creación del documento
+- `fecha_actualizacion` (timestamp): Fecha de última actualización del documento
+
+**Propósito**:
+- Evitar consultas repetidas a la API externa cuando no hay partidos
+- Cachear el resultado de consultas vacías por 24 horas
+- Optimizar el rendimiento al evitar llamadas innecesarias a la API
+
+**Índices sugeridos**:
+- `leagueId` (ascending)
+- `date` (ascending)
+- `leagueId` + `date` (composite)
+- `last_checked` (descending) - para limpiar documentos antiguos
 
 ---
 

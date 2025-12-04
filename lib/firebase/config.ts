@@ -4,9 +4,7 @@ import { getFirestore } from "firebase/firestore";
 import admin from "firebase-admin";
 import dotenv from "dotenv";
 
-dotenv.config(
-  { path: ".env.local" }
-);
+dotenv.config({ path: ".env.local" });
 
 // Client-side Firebase config
 const firebaseConfig = {
@@ -38,12 +36,25 @@ if (typeof window === "undefined") {
       const serviceAccountKey = process.env.FIREBASE_SERVICE_ACCOUNT_KEY;
       const privateKey = process.env.FIREBASE_PRIVATE_KEY;
       const clientEmail = process.env.FIREBASE_CLIENT_EMAIL;
-      const projectId = process.env.FIREBASE_PROJECT_ID || firebaseConfig.projectId;
+      const projectId =
+        process.env.FIREBASE_PROJECT_ID || firebaseConfig.projectId;
 
-      console.log('DEBUG: process.env.FIREBASE_SERVICE_ACCOUNT_KEY:', serviceAccountKey ? 'set' : 'not set');
-      console.log('DEBUG: process.env.FIREBASE_PRIVATE_KEY:', privateKey ? 'set' : 'not set');
-      console.log('DEBUG: process.env.FIREBASE_CLIENT_EMAIL:', clientEmail ? 'set' : 'not set');
-      console.log('DEBUG: process.env.FIREBASE_PROJECT_ID:', projectId ? 'set' : 'not set');
+      console.log(
+        "DEBUG: process.env.FIREBASE_SERVICE_ACCOUNT_KEY:",
+        serviceAccountKey ? "set" : "not set"
+      );
+      console.log(
+        "DEBUG: process.env.FIREBASE_PRIVATE_KEY:",
+        privateKey ? "set" : "not set"
+      );
+      console.log(
+        "DEBUG: process.env.FIREBASE_CLIENT_EMAIL:",
+        clientEmail ? "set" : "not set"
+      );
+      console.log(
+        "DEBUG: process.env.FIREBASE_PROJECT_ID:",
+        projectId ? "set" : "not set"
+      );
 
       let serviceAccount: any;
 
@@ -73,13 +84,19 @@ if (typeof window === "undefined") {
       }
 
       // Validar que las credenciales sean válidas
-      if (!serviceAccount.private_key || serviceAccount.private_key.trim() === '') {
+      if (
+        !serviceAccount.private_key ||
+        serviceAccount.private_key.trim() === ""
+      ) {
         throw new Error(
           "La propiedad 'private_key' está vacía o no está configurada correctamente."
         );
       }
 
-      if (!serviceAccount.client_email || serviceAccount.client_email.trim() === '') {
+      if (
+        !serviceAccount.client_email ||
+        serviceAccount.client_email.trim() === ""
+      ) {
         throw new Error(
           "La propiedad 'client_email' está vacía o no está configurada correctamente."
         );
@@ -92,7 +109,8 @@ if (typeof window === "undefined") {
 
       admin.initializeApp({
         credential: admin.credential.cert(serviceAccount),
-        projectId: serviceAccount.project_id || serviceAccount.projectId || projectId,
+        projectId:
+          serviceAccount.project_id || serviceAccount.projectId || projectId,
       });
 
       console.log("✅ Firebase Admin initialized successfully");

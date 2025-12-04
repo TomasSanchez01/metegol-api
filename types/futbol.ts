@@ -109,6 +109,7 @@ export interface Formacion {
   };
   fecha_creacion: Timestamp;
   fecha_actualizacion: Timestamp;
+  ttl_expiracion?: Timestamp;
 }
 
 /**
@@ -187,6 +188,8 @@ export interface Partido {
   };
   fecha_creacion: Timestamp;
   fecha_actualizacion: Timestamp;
+  ttl_fixture?: Timestamp;
+  ttl_detalles?: Timestamp;
 }
 
 /**

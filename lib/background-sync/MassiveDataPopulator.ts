@@ -1,5 +1,6 @@
 // Massive Data Populator - Populates Firebase with extensive league data
 import { DataSyncer } from "./DataSyncer";
+import { FirestoreFootballService } from "../firestore-football-service";
 import { format, subDays, addDays } from "date-fns";
 
 interface PopulationConfig {
@@ -22,6 +23,7 @@ interface PopulationConfig {
 
 export class MassiveDataPopulator {
   private syncer: DataSyncer;
+  private firestoreService: FirestoreFootballService;
   private isRunning = false;
   private stats = {
     totalBatches: 0,
@@ -146,6 +148,11 @@ export class MassiveDataPopulator {
 
   constructor(apiKey: string) {
     this.syncer = new DataSyncer(apiKey);
+    this.firestoreService = new FirestoreFootballService();
+    // Inicializar API externa en FirestoreFootballService
+    const { FootballApiServer } = require("../footballApi");
+    const api = new FootballApiServer(apiKey);
+    this.firestoreService.setExternalApi(api);
   }
 
   /**
@@ -317,10 +324,20 @@ export class MassiveDataPopulator {
         if (!this.isRunning) break;
 
         try {
-          // Queue fixtures sync for this league and date
-          await this.syncer.forceSync("today"); // This will sync current data
+          // Usar FirestoreFootballService para sincronizar fixtures para esta liga y fecha
+          // getFixtures ya maneja Firestore, API externa, enriquecimiento y guardado
+          console.log(`📅 Syncing ${league.name} for ${date}...`);
+          const matches = await this.firestoreService.getFixtures(
+            date,
+            date,
+            league.id
+          );
 
-          // Increment API call counter
+          console.log(
+            `✅ Synced ${matches.length} matches for ${league.name} on ${date}`
+          );
+
+          // Increment API call counter (aproximado, ya que getFixtures puede usar cache)
           this.stats.totalApiCalls++;
 
           // Rate limiting: respect API limits
@@ -328,7 +345,10 @@ export class MassiveDataPopulator {
             console.log(
               `⏱️ RATE LIMIT: Brief pause (${this.stats.totalApiCalls} API calls made)`
             );
-            await new Promise(resolve => setTimeout(resolve, 6000)); // 6 second pause every 10 calls
+            await new Promise(resolve => setTimeout(resolve, 600)); // 6 second pause every 10 calls
+          } else {
+            // Pequeña pausa entre llamadas para respetar rate limits
+            await new Promise(resolve => setTimeout(resolve, 600)); // 600ms entre llamadas
           }
         } catch (error) {
           console.error(`❌ Failed to sync ${league.name} for ${date}:`, error);

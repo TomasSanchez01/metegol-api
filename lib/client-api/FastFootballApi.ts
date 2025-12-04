@@ -23,17 +23,17 @@ export class FastFootballApi {
   ): Promise<T | null> {
     const cacheKey = `${collection}_${JSON.stringify(options)}`;
 
-    // Check memory cache first
+    // Check memory cache first (30 seconds TTL)
     const memoryCached = this.memoryCache.get(cacheKey);
     if (
       memoryCached &&
       Date.now() - memoryCached.timestamp < memoryCached.ttl
     ) {
-      console.log(`💾 MEMORY HIT: ${cacheKey}`);
+      console.log(`💾 MEMORY HIT: ${cacheKey} (cache en memoria, 30 segundos)`);
       return memoryCached.data as T;
     }
 
-    // Get from Firebase
+    // Get from Firebase (api_cache collection)
     try {
       const firebaseData = await this.cache.get<T>(collection, options);
 
@@ -44,6 +44,7 @@ export class FastFootballApi {
           timestamp: Date.now(),
           ttl: 30000, // 30 seconds
         });
+        // Nota: El log "Cache HIT" viene de FirebaseCache.get(), no lo duplicamos aquí
       }
 
       return firebaseData;

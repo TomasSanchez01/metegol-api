@@ -1,46 +1,70 @@
-// Simple admin dashboard
+// Admin dashboard con estadísticas de Firestore
 import { NextResponse } from "next/server";
-import { FirebaseCache } from "@/lib/firebase/cache";
+import { adminDb } from "@/lib/firebase/config";
 import { withAdminAuth } from "@/lib/middleware/auth";
-
-let globalCache: FirebaseCache | null = null;
 
 export const GET = withAdminAuth(async () => {
   try {
-    const apiKey = process.env.FOOTBALL_API_KEY;
-    if (!apiKey) {
+    if (!adminDb) {
       return NextResponse.json(
-        { error: "API key not configured" },
+        { error: "Firebase Admin no está inicializado" },
         { status: 500 }
       );
     }
 
-    // Initialize cache if needed
-    if (!globalCache) {
-      globalCache = FirebaseCache.getInstance();
+    // Obtener estadísticas de colecciones estructuradas
+    const collections = [
+      "ligas",
+      "equipos",
+      "jugadores",
+      "partidos",
+      "standings",
+      "formaciones",
+      "empty_queries",
+    ];
+
+    const stats: Record<string, any> = {};
+
+    // Obtener conteos de cada colección
+    for (const collectionName of collections) {
+      try {
+        const countSnapshot = await adminDb
+          .collection(collectionName)
+          .count()
+          .get();
+        stats[collectionName] = {
+          totalEntries: countSnapshot.data().count || 0,
+        };
+      } catch (error) {
+        console.error(`Error getting stats for ${collectionName}:`, error);
+        stats[collectionName] = {
+          totalEntries: 0,
+          error: error instanceof Error ? error.message : String(error),
+        };
+      }
     }
 
-    // Get basic cache statistics
-    const cacheStats = await globalCache.getStats();
+    // Calcular totales
+    const totalStructuredCollections =
+      (stats.ligas?.totalEntries || 0) +
+      (stats.equipos?.totalEntries || 0) +
+      (stats.jugadores?.totalEntries || 0) +
+      (stats.partidos?.totalEntries || 0) +
+      (stats.standings?.totalEntries || 0) +
+      (stats.formaciones?.totalEntries || 0);
 
     const dashboard = {
       timestamp: new Date().toISOString(),
       summary: {
-        cacheEntries: cacheStats.totalEntries,
-        expiredEntries: cacheStats.expiredEntries,
-        cacheSize: `${Math.round(cacheStats.sizeBytes / 1024)}KB`,
-        status:
-          cacheStats.expiredEntries > cacheStats.totalEntries * 0.5
-            ? "Needs cleanup"
-            : "Healthy",
+        structuredCollections: totalStructuredCollections,
+        totalEntries: totalStructuredCollections,
+        emptyQueries: stats.empty_queries?.totalEntries || 0,
+        status: "Healthy",
       },
-      cache: {
-        ...cacheStats,
-        sizeMB: Math.round((cacheStats.sizeBytes / 1024 / 1024) * 100) / 100,
-      },
+      collections: stats,
       actions: {
-        clearExpiredCache: "/api/admin/dashboard?action=clear-expired",
         syncData: "/api/admin/sync",
+        refreshCache: "/api/cron/refresh-cache",
       },
     };
 
@@ -59,16 +83,12 @@ export const POST = withAdminAuth(async request => {
     const searchParams = request.nextUrl.searchParams;
     const action = searchParams.get("action");
 
-    if (!globalCache) {
-      globalCache = FirebaseCache.getInstance();
-    }
-
     switch (action) {
-      case "clear-expired":
-        await globalCache.cleanup();
+      case "refresh-stats":
+        // Simplemente devolver éxito, las stats se obtienen en GET
         return NextResponse.json({
           success: true,
-          message: "Expired cache entries cleared",
+          message: "Statistics refreshed",
         });
 
       default:

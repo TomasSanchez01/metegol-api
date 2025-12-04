@@ -17,7 +17,9 @@ const endpoints = [
 async function inspect() {
     for (const endpoint of endpoints) {
         console.log(`\n🔍 ${endpoint}`);
-        const { data } = await axios.get(`${API_BASE}${endpoint}`, {
+        const fullUrl = `${API_BASE}${endpoint}`;
+        console.log(`📡 inspect-api fetching -> ${fullUrl}`);
+        const { data } = await axios.get(fullUrl, {
             headers: { "x-apisports-key": API_KEY },
         });
         console.dir(data, { depth: 4 });

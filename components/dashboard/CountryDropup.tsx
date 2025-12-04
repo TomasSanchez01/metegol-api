@@ -56,16 +56,26 @@ export default function CountryDropup({
 
         <div className="flex items-center gap-2">
           {hasActiveFilter && (
-            <button
+            <div
               onClick={e => {
                 e.stopPropagation();
                 clearFilter();
               }}
+              onKeyDown={e => {
+                if (e.key === "Enter" || e.key === " ") {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  clearFilter();
+                }
+              }}
+              role="button"
+              tabIndex={0}
               className="flex h-6 w-6 items-center justify-center rounded-full bg-white/20 transition-colors duration-200 hover:bg-white/30"
               title="Limpiar filtro"
+              aria-label="Limpiar filtro"
             >
               <X className="h-3 w-3" />
-            </button>
+            </div>
           )}
           <ChevronUp
             className={`h-5 w-5 transition-transform duration-300 ${

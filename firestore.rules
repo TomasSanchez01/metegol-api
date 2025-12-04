@@ -65,6 +65,11 @@ service cloud.firestore {
       allow write: if false; // Solo desde server-side (Admin SDK)
     }
 
+    // Empty queries cache - solo para sistema interno
+    match /empty_queries/{document} {
+      allow read, write: if false; // Solo desde server-side (Admin SDK)
+    }
+
     // Default: denegar todo lo demás
     match /{document=**} {
       allow read, write: if false;

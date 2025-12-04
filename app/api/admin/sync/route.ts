@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { DataSyncer } from "@/lib/background-sync/DataSyncer";
+import { getSyncer } from "@/lib/background-sync/syncer-singleton";
 import { withAdminAuth } from "@/lib/middleware/auth";
 
 export const POST = withAdminAuth(async (request: NextRequest) => {
@@ -12,7 +12,7 @@ export const POST = withAdminAuth(async (request: NextRequest) => {
     const body = await request.json();
     const { action, type } = body;
 
-    const syncer = new DataSyncer(apiKey);
+    const syncer = getSyncer(apiKey);
 
     let result: { message: string; status: string };
 
@@ -101,7 +101,7 @@ export const GET = withAdminAuth(async () => {
       return NextResponse.json({ error: "Missing API key" }, { status: 500 });
     }
 
-    const syncer = new DataSyncer(apiKey);
+    const syncer = getSyncer(apiKey);
     const stats = syncer.getStats();
 
     return NextResponse.json({

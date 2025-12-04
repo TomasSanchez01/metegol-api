@@ -53,7 +53,9 @@ export class FirebaseCache {
         return null;
       }
 
-      console.log(`✅ Cache HIT for ${key}`);
+      console.log(
+        `✅ Cache HIT for ${key} (api_cache collection en Firestore)`
+      );
       return cacheDoc.data as T;
     } catch (error) {
       console.error(`❌ Cache GET error for ${collection}:`, error);
