@@ -1,16 +1,16 @@
 import { NextRequest, NextResponse } from "next/server";
-import { FastFootballApi } from "@/lib/client-api/FastFootballApi";
+import { FirestoreFootballService } from "@/lib/firestore-football-service";
 import { Match } from "@/types/match";
 import { format, parseISO } from "date-fns";
 
 // Global instance to avoid Firebase reinitialization
-let globalApi: FastFootballApi | null = null;
+let globalFirestoreService: FirestoreFootballService | null = null;
 
-function getApi(): FastFootballApi {
-  if (!globalApi) {
-    globalApi = new FastFootballApi();
+function getFirestoreService(): FirestoreFootballService {
+  if (!globalFirestoreService) {
+    globalFirestoreService = new FirestoreFootballService();
   }
-  return globalApi;
+  return globalFirestoreService;
 }
 
 export async function GET(request: NextRequest) {
@@ -19,7 +19,7 @@ export async function GET(request: NextRequest) {
   const league = searchParams.get("league");
   const leagues = searchParams.get("leagues");
 
-  const api = getApi();
+  const firestoreService = getFirestoreService();
 
   try {
     let matches: Match[] = [];
@@ -30,15 +30,21 @@ export async function GET(request: NextRequest) {
     };
 
     if (leagues) {
-      // Multiple leagues - optimized single call
+      // Multiple leagues - usar método optimizado que consulta Firestore una vez y filtra
       const leagueIds = leagues.split(",").map(id => parseInt(id.trim()));
       const targetDateStr = getDateString(date);
 
-      matches = await api.getMultipleLeaguesFixtures(targetDateStr, leagueIds);
+      // Usar método optimizado que consulta Firestore una vez por fecha y filtra por ligas
+      // Este método ya incluye detalles completos (stats, events, lineups) desde colecciones estructuradas
+      matches = await firestoreService.getFixturesForMultipleLeagues(
+        targetDateStr,
+        targetDateStr,
+        leagueIds
+      );
     } else if (date && league) {
       // Single league and date
       const targetDateStr = getDateString(date);
-      matches = await api.getFixturesByDateRangeAndLeague(
+      matches = await firestoreService.getFixtures(
         targetDateStr,
         targetDateStr,
         parseInt(league)
@@ -46,13 +52,13 @@ export async function GET(request: NextRequest) {
     } else if (league) {
       // Single league, today's matches
       const todayStr = getDateString();
-      matches = await api.getFixturesByDateRangeAndLeague(
+      matches = await firestoreService.getFixtures(
         todayStr,
         todayStr,
         parseInt(league)
       );
     } else {
-      // Default leagues for today
+      // Default leagues for today - usar método optimizado para múltiples ligas
       const todayStr = getDateString(date);
       const defaultLeagues = [
         128,
@@ -72,13 +78,16 @@ export async function GET(request: NextRequest) {
         73, // Brazil (Brasileirão A, Copa do Brasil)
         15, // Mundial de Clubes
       ];
-      matches = await api.getMultipleLeaguesFixtures(todayStr, defaultLeagues);
+      // Usar método optimizado que consulta Firestore una vez y filtra por ligas
+      matches = await firestoreService.getFixturesForMultipleLeagues(
+        todayStr,
+        todayStr,
+        defaultLeagues
+      );
     }
 
-    // Get matches with detailed data (stats, events, lineups) - already cached in Firebase
-    const matchesWithStats = await api.getMatchesWithDetails(matches);
-
-    return NextResponse.json({ matches: matchesWithStats });
+    // Los matches ya incluyen detalles completos (stats, events, lineups) desde colecciones estructuradas
+    return NextResponse.json({ matches });
   } catch (error) {
     console.error("Error fetching fixtures:", error);
     return NextResponse.json(

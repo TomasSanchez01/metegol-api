@@ -2,7 +2,7 @@
   "crons": [
     {
       "path": "/api/cron/sync",
-      "schedule": "0 6,12,18,23 * * *"
+      "schedule": "0 6 * * *"
     },
     {
       "path": "/api/cron/preload",

@@ -81,7 +81,6 @@ export default function LeagueDropup({
       {/* Botón principal */}
       <button
         onClick={() => setIsOpen(!isOpen)}
-        disabled={!!hasCountrySelected && !hasLeaguesAvailable}
         className={`group relative flex w-full items-center justify-between rounded-2xl border px-4 py-3 text-sm font-medium transition-all duration-300 ${
           hasActiveFilter
             ? "border-emerald-400 bg-gradient-to-r from-emerald-500/20 to-teal-400/20 text-white shadow-lg"
@@ -94,30 +93,36 @@ export default function LeagueDropup({
           <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-white/10">
             <Trophy className="h-4 w-4" />
           </div>
-          <span className="truncate">
-            {hasCountrySelected && !hasLeaguesAvailable
-              ? "Sin ligas disponibles"
-              : getDisplayText()}
-          </span>
+          <span className="truncate">{getDisplayText()}</span>
         </div>
 
         <div className="flex items-center gap-2">
           {hasActiveFilter && (
-            <button
+            <div
               onClick={e => {
                 e.stopPropagation();
                 clearFilter();
               }}
+              onKeyDown={e => {
+                if (e.key === "Enter" || e.key === " ") {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  clearFilter();
+                }
+              }}
+              role="button"
+              tabIndex={0}
               className="flex h-6 w-6 items-center justify-center rounded-full bg-white/20 transition-colors duration-200 hover:bg-white/30"
               title="Limpiar filtro"
+              aria-label="Limpiar filtro"
             >
               <X className="h-3 w-3" />
-            </button>
+            </div>
           )}
           <ChevronUp
             className={`h-5 w-5 transition-transform duration-300 ${
               isOpen ? "rotate-180" : ""
-            } ${hasCountrySelected && !hasLeaguesAvailable ? "opacity-50" : ""}`}
+            }`}
           />
         </div>
       </button>

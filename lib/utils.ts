@@ -9,6 +9,13 @@ export async function apiCall<T>(
   url: string,
   options?: RequestInit
 ): Promise<T> {
+  // Log every outgoing fetch URL for easier debugging (external or internal)
+  try {
+    console.log(`📡 apiCall fetching URL: ${url}`);
+  } catch {
+    // ignore logging errors
+  }
+
   const res = await fetch(url, options);
   if (!res.ok) {
     throw new Error(`Error al llamar a la API: ${res.status}`);

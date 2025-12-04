@@ -1,14 +1,15 @@
 import { NextRequest, NextResponse } from "next/server";
-import { FastFootballApi } from "@/lib/client-api/FastFootballApi";
+import { FirestoreFootballService } from "@/lib/firestore-football-service";
+import { Match } from "@/types/match";
 
 // Global instance to avoid Firebase reinitialization
-let globalApi: FastFootballApi | null = null;
+let globalFirestoreService: FirestoreFootballService | null = null;
 
-function getApi(): FastFootballApi {
-  if (!globalApi) {
-    globalApi = new FastFootballApi();
+function getFirestoreService(): FirestoreFootballService {
+  if (!globalFirestoreService) {
+    globalFirestoreService = new FirestoreFootballService();
   }
-  return globalApi;
+  return globalFirestoreService;
 }
 
 export async function GET(
@@ -18,27 +19,69 @@ export async function GET(
   try {
     const { id } = await params;
     const teamId = parseInt(id);
-    const season = 2025;
+    const season = new Date().getFullYear();
 
-    const apiKey = process.env.FOOTBALL_API_KEY;
-    if (!apiKey) {
-      return NextResponse.json(
-        { error: "FOOTBALL_API_KEY not configured" },
-        { status: 500 }
+    const firestoreService = getFirestoreService();
+
+    // Consultar Firestore primero para obtener información del equipo
+    const teamInfo = await firestoreService.getTeamById(teamId);
+
+    // Consultar Firestore para obtener partidos del equipo
+    let allMatches = await firestoreService.getTeamMatches(teamId, season);
+
+    // Si no hay partidos en Firestore, consultar API externa
+    if (allMatches.length === 0) {
+      console.log(
+        `⚠️  No matches found in Firestore for team ${teamId}, fetching from external API...`
       );
+
+      const apiKey = process.env.FOOTBALL_API_KEY;
+      if (!apiKey) {
+        return NextResponse.json(
+          { error: "FOOTBALL_API_KEY not configured" },
+          { status: 500 }
+        );
+      }
+
+      // Use FootballApiServer for team matches
+      const { FootballApiServer } = await import("@/lib/footballApi");
+      const externalApi = new FootballApiServer(apiKey);
+
+      // Get team matches from all leagues using getTeamAllMatches
+      console.log(
+        `📄 Fetching all matches for team ${teamId}, season ${season}`
+      );
+      allMatches = await externalApi.getTeamAllMatches(teamId, season);
+
+      // Guardar partidos en Firestore (con detalles si están disponibles)
+      if (allMatches.length > 0) {
+        // Enriquecer con detalles si no los tienen
+        const enrichedMatches =
+          await firestoreService.enrichMatchesWithDetails(allMatches);
+        await firestoreService.saveMatchesToFirestore(enrichedMatches);
+        allMatches = enrichedMatches;
+      }
+    } else {
+      // Si hay partidos en Firestore, enriquecer con detalles si faltan
+      // Solo para los primeros 10 partidos más recientes para mejorar rendimiento
+      const now = new Date();
+      const sortedMatches = allMatches.sort((a, b) => {
+        const dateA = new Date(a.fixture.date);
+        const dateB = new Date(b.fixture.date);
+        return dateB.getTime() - dateA.getTime(); // Más recientes primero
+      });
+
+      const recentMatches = sortedMatches.slice(0, 10);
+      const enrichedRecentMatches =
+        await firestoreService.enrichMatchesWithDetailsIfMissing(recentMatches);
+
+      // Combinar partidos enriquecidos con el resto
+      allMatches = [...enrichedRecentMatches, ...sortedMatches.slice(10)];
     }
-
-    // Use FootballApiServer for team matches
-    const { FootballApiServer } = await import("@/lib/footballApi");
-    const externalApi = new FootballApiServer(apiKey);
-
-    // Get team matches from all leagues using getTeamAllMatches
-    console.log(`📄 Fetching all matches for team ${teamId}, season ${season}`);
-    const allMatches = await externalApi.getTeamAllMatches(teamId, season);
 
     if (!allMatches || allMatches.length === 0) {
       return NextResponse.json({
-        team: {
+        team: teamInfo || {
           id: teamId,
           name: `Team ${teamId}`,
           logo: `https://media.api-sports.io/football/teams/${teamId}.png`,
@@ -48,12 +91,26 @@ export async function GET(
       });
     }
 
-    // Get team info from the first match
-    const firstMatch = allMatches[0];
-    const teamInfo =
-      firstMatch.teams.home.id === teamId
-        ? firstMatch.teams.home
-        : firstMatch.teams.away;
+    // Get team info from the first match if not found in Firestore
+    if (!teamInfo) {
+      const firstMatch = allMatches[0];
+      const teamFromMatch =
+        firstMatch.teams.home.id === teamId
+          ? firstMatch.teams.home
+          : firstMatch.teams.away;
+
+      // Guardar equipo en Firestore
+      await firestoreService.saveTeamsToFirestore(
+        [teamFromMatch],
+        firstMatch.league.id
+      );
+    }
+
+    const finalTeamInfo =
+      teamInfo ||
+      (allMatches[0].teams.home.id === teamId
+        ? allMatches[0].teams.home
+        : allMatches[0].teams.away);
 
     // Sort matches: upcoming first, then recent finished matches
     const now = new Date();
@@ -78,43 +135,9 @@ export async function GET(
       }
     });
 
-    // Get detailed data for first 10 matches only (to improve performance)
-    const api = getApi();
-    const recentMatches = sortedMatches.slice(0, 10);
-    const matchesWithStats = await Promise.all(
-      recentMatches.map(async match => {
-        try {
-          const [stats, events] = await Promise.all([
-            api.getMatchStats(match.fixture.id),
-            api.getMatchEvents(match.fixture.id),
-          ]);
-
-          return {
-            ...match,
-            statistics: stats,
-            events: events,
-          };
-        } catch (error) {
-          console.error(
-            `Error getting details for match ${match.fixture.id}:`,
-            error
-          );
-          return match; // Return match without detailed stats if there's an error
-        }
-      })
-    );
-
-    // Combine detailed matches with the rest
-    const allMatchesWithSomeStats = sortedMatches.map((match, index) => {
-      if (index < 10) {
-        return matchesWithStats[index];
-      }
-      return match;
-    });
-
     return NextResponse.json({
-      team: teamInfo,
-      matches: allMatchesWithSomeStats,
+      team: finalTeamInfo,
+      matches: sortedMatches,
       totalMatches: allMatches.length,
     });
   } catch (error) {

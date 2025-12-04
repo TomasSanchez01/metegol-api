@@ -16,7 +16,7 @@ interface Props {
   initialMatches?: Match[];
 }
 
-const DEFAULT_LEAGUES = [128, 129, 130, 2, 3, 848, 15];
+const DEFAULT_LEAGUES = [128, 129, 130, 2, 3, 848, 15, 71];
 
 const leagueNames: Record<number, string> = {
   128: "Liga Profesional de Futbol",

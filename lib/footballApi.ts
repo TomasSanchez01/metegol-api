@@ -17,7 +17,7 @@ export class FootballApi {
       : "http://localhost:3000");
 
   static async getMatches(date?: string, league?: number): Promise<Match[]> {
-    console.log(`🌐 FRONTEND: Using base URL: ${this.baseUrl}`);
+    // console.log(`🌐 FRONTEND: Using base URL: ${this.baseUrl}`);
 
     // Primero intentar carga normal
     const params = new URLSearchParams();
@@ -63,7 +63,6 @@ export class FootballApi {
     return data.leagues || [];
   }
 
-  // ⬇️ NUEVO: usa tu API interna (no expone la API key)
   static async getLeaguesByCountry(country: string): Promise<League[]> {
     const url =
       this.baseUrl + `/api/leagues?country=${encodeURIComponent(country)}`;
@@ -72,9 +71,6 @@ export class FootballApi {
     });
     return data.leagues || [];
   }
-
-  // ⬇️ NUEVO: Métodos para manejo de carga bajo demanda
-  // loadOnDemand removed to prevent external API calls
 
   static async checkDataAvailability(
     date: string,
@@ -102,7 +98,7 @@ export class FootballApi {
       const result = await response.json();
       return result.success ? result.availability : null;
     } catch (error) {
-      console.error("Error checking data availability:", error);
+      // console.error("Error checking data availability:", error);
       return null;
     }
   }
@@ -130,7 +126,7 @@ export class FootballApi {
       const result = await response.json();
       return result.success ? result.stats : null;
     } catch (error) {
-      console.error("Error in preload:", error);
+      // console.error("Error in preload:", error);
       return null;
     }
   }
@@ -146,7 +142,7 @@ export class FootballApi {
       const result = await response.json();
       return result.success ? result.status : null;
     } catch (error) {
-      console.error("Error getting preload status:", error);
+      // console.error("Error getting preload status:", error);
       return null;
     }
   }
@@ -159,18 +155,83 @@ export class FootballApi {
       });
       return data;
     } catch (error) {
-      console.error("Error fetching standings:", error);
+      // console.error("Error fetching standings:", error);
       return null;
     }
+  }
+}
+
+// Contador global compartido para todas las instancias de FootballApiServer
+// Esto permite que las API calls se cuenten correctamente incluso cuando se usan diferentes instancias
+let globalApiCallCount: number = 0;
+let globalLastResetDate: string = "";
+
+// Función para inicializar la fecha del último reset si no está establecida
+function initializeResetDate(): void {
+  if (!globalLastResetDate) {
+    const now = new Date();
+    globalLastResetDate = now.toISOString().split("T")[0]; // YYYY-MM-DD en UTC
+    // console.log(
+      // `📅 Initializing API calls counter for date: ${globalLastResetDate} (UTC)`
+    // );
   }
 }
 
 export class FootballApiServer {
   private apiKey: string;
   private baseUrl: string = "https://v3.football.api-sports.io";
+  private apiCallCount: number = 0; // Contador local para esta instancia
 
   constructor(apiKey: string) {
     this.apiKey = apiKey;
+    // Inicializar la fecha del último reset si es la primera vez
+    initializeResetDate();
+  }
+
+  /**
+   * Verificar y resetear el contador global si es un nuevo día (UTC)
+   */
+  private checkAndResetGlobalCounter(): void {
+    const now = new Date();
+    const todayUTC = now.toISOString().split("T")[0]; // YYYY-MM-DD en UTC
+
+    // Inicializar si no está establecido (primera vez que se usa)
+    if (!globalLastResetDate) {
+      globalLastResetDate = todayUTC;
+      // NO resetear el contador en la inicialización, solo establecer la fecha
+      return;
+    }
+
+    // Si es un nuevo día, resetear el contador global
+    if (globalLastResetDate !== todayUTC) {
+      // console.log(
+      //   `🔄 Resetting global API calls counter for new day: ${globalLastResetDate} -> ${todayUTC} (UTC)`
+      // );
+      globalApiCallCount = 0;
+      globalLastResetDate = todayUTC;
+    }
+  }
+
+  /**
+   * Obtener el número de llamadas a la API externa realizadas por esta instancia
+   */
+  getApiCallCount(): number {
+    return this.apiCallCount;
+  }
+
+  /**
+   * Obtener el número total de llamadas a la API externa (todas las instancias)
+   */
+  getGlobalApiCallCount(): number {
+    this.checkAndResetGlobalCounter();
+    return globalApiCallCount;
+  }
+
+  /**
+   * Resetear el contador local de llamadas a la API (solo para esta instancia)
+   */
+  resetApiCallCount(): void {
+    this.apiCallCount = 0;
   }
 
   private async request<T>(
@@ -181,6 +242,23 @@ export class FootballApiServer {
     Object.entries(params).forEach(([key, value]) =>
       url.searchParams.append(key, String(value))
     );
+
+    // Verificar y resetear contador global si es un nuevo día
+    this.checkAndResetGlobalCounter();
+
+    // Incrementar contador local y global de llamadas a la API externa
+    this.apiCallCount++;
+    globalApiCallCount++;
+
+    // Log the outgoing external API URL (helps trace which endpoint is being used)
+    try {
+      // console.log(`📡 FootballApiServer request -> ${url.toString()}`);
+    } catch {
+      // ignore logging errors
+    }
+
+    // Incrementar contador de API calls (solo para llamadas reales a la API externa)
+    this.apiCallCount++;
 
     const res = await fetch(url.toString(), {
       headers: {
@@ -209,10 +287,10 @@ export class FootballApiServer {
 
       return { home, away };
     } catch (error) {
-      console.error(
-        `Error fetching team stats for match ${match.fixture.id}:`,
-        error
-      );
+      // console.error(
+      //   `Error fetching team stats for match ${match.fixture.id}:`,
+      //   error
+      // );
       return { home: [], away: [] };
     }
   }
@@ -232,7 +310,7 @@ export class FootballApiServer {
 
       return { home, away };
     } catch (error) {
-      console.error(`Error fetching lineups for match ${fixtureId}:`, error);
+      // console.error(`Error fetching lineups for match ${fixtureId}:`, error);
       return { home: null, away: null };
     }
   }
@@ -260,22 +338,22 @@ export class FootballApiServer {
         match.teams.away.name.includes("Kairat") ||
         match.teams.away.name.includes("Celtic")
       ) {
-        console.log(
-          `EVENTS API DEBUG for ${match.teams.home.name} vs ${match.teams.away.name}:`,
-          {
-            fixtureId: match.fixture.id,
-            totalEvents: events.length,
-            homeTeamId: match.teams.home.id,
-            awayTeamId: match.teams.away.id,
-            allEvents: events.map(e => ({
-              type: e.type,
-              time: e.time.elapsed,
-              teamId: e.team.id,
-              teamName: e.team.name,
-              player: e.player.name,
-            })),
-          }
-        );
+        // console.log(
+        //   `EVENTS API DEBUG for ${match.teams.home.name} vs ${match.teams.away.name}:`,
+        //   {
+        //     fixtureId: match.fixture.id,
+        //     totalEvents: events.length,
+        //     homeTeamId: match.teams.home.id,
+        //     awayTeamId: match.teams.away.id,
+        //     allEvents: events.map(e => ({
+        //       type: e.type,
+        //       time: e.time.elapsed,
+        //       teamId: e.team.id,
+        //       teamName: e.team.name,
+        //       player: e.player.name,
+        //     })),
+        //   }
+        // );
       }
 
       const home = events
@@ -293,10 +371,10 @@ export class FootballApiServer {
 
       return { home, away };
     } catch (error) {
-      console.error(
-        `Error fetching events for match ${match.fixture.id}:`,
-        error
-      );
+      // console.error(
+      //   `Error fetching events for match ${match.fixture.id}:`,
+      //   error
+      // );
       return { home: [], away: [] };
     }
   }
@@ -325,7 +403,7 @@ export class FootballApiServer {
           new Date(a.fixture.date).getTime()
       );
     } catch (error) {
-      console.error(`Error fetching all matches for team ${teamId}:`, error);
+      // console.error(`Error fetching all matches for team ${teamId}:`, error);
       return [];
     }
   }
@@ -379,6 +457,21 @@ export class FootballApiServer {
         season,
       })) ?? [];
     return teamData.map(({ team }) => team);
+  }
+
+  async getTeamsByLeague(leagueId: number, season?: number): Promise<Team[]> {
+    try {
+      const currentSeason = season || new Date().getFullYear();
+      const teamData =
+        (await this.request<{ team: Team }[]>("/teams", {
+          league: leagueId,
+          season: currentSeason,
+        })) ?? [];
+      return teamData.map(({ team }) => team);
+    } catch (error) {
+      // console.error(`Error fetching teams for league ${leagueId}:`, error);
+      return [];
+    }
   }
 
   async getAllLeagues(): Promise<League[]> {
@@ -452,7 +545,7 @@ export class FootballApiServer {
       });
       return standings ?? [];
     } catch (error) {
-      console.error(`Error fetching standings for league ${leagueId}:`, error);
+      // console.error(`Error fetching standings for league ${leagueId}:`, error);
       return [];
     }
   }
@@ -472,7 +565,7 @@ export class FootballApiServer {
       >("/leagues", {});
       return leagues ?? [];
     } catch (error) {
-      console.error("Error fetching leagues:", error);
+      // console.error("Error fetching leagues:", error);
       return [];
     }
   }

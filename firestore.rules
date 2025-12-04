@@ -34,6 +34,42 @@ service cloud.firestore {
       allow write: if false;
     }
 
+    // Colecciones estructuradas de fútbol - solo lectura pública
+    match /ligas/{document} {
+      allow read: if true;
+      allow write: if false; // Solo desde server-side (Admin SDK)
+    }
+
+    match /equipos/{document} {
+      allow read: if true;
+      allow write: if false; // Solo desde server-side (Admin SDK)
+    }
+
+    match /partidos/{document} {
+      allow read: if true;
+      allow write: if false; // Solo desde server-side (Admin SDK)
+    }
+
+    match /standings/{document} {
+      allow read: if true;
+      allow write: if false; // Solo desde server-side (Admin SDK)
+    }
+
+    match /formaciones/{document} {
+      allow read: if true;
+      allow write: if false; // Solo desde server-side (Admin SDK)
+    }
+
+    match /jugadores/{document} {
+      allow read: if true;
+      allow write: if false; // Solo desde server-side (Admin SDK)
+    }
+
+    // Empty queries cache - solo para sistema interno
+    match /empty_queries/{document} {
+      allow read, write: if false; // Solo desde server-side (Admin SDK)
+    }
+
     // Default: denegar todo lo demás
     match /{document=**} {
       allow read, write: if false;
