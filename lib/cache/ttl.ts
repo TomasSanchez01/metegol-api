@@ -70,13 +70,13 @@ export function calculateFixtureTtlMs(
   if (isFinishedStatus(status) || isPastUtcDay(matchDate, now)) {
     // Calcular días desde el partido
     const daysSinceMatch = (now.getTime() - matchDate.getTime()) / DAY;
-    
+
     // Partidos muy antiguos (más de 30 días) tienen TTL muy largo (1 año)
     // ya que los datos históricos no cambian
     if (daysSinceMatch > 30) {
       return 365 * DAY; // 1 año para partidos históricos
     }
-    
+
     // Partidos terminados recientemente (últimos 30 días)
     return 30 * DAY;
   }

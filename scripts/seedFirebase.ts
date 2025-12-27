@@ -1,13 +1,13 @@
 /**
  * Script para poblar Firestore con datos de ejemplo iniciales
- * 
+ *
  * Uso: npx tsx scripts/seedFirebase.ts
- * 
+ *
  * Este script crea:
  * - Ligas de ejemplo (Liga Profesional Argentina, Premier League, etc.)
  * - Equipos de ejemplo (River Plate, Boca Juniors, etc.)
  * - Jugadores de ejemplo
- * 
+ *
  * Los datos se crean con merge: true para evitar duplicar si ya existen.
  */
 
@@ -47,67 +47,71 @@ const ligasEjemplo: Omit<Liga, "fecha_creacion" | "fecha_actualizacion">[] = [
 ];
 
 // Datos de ejemplo para equipos
-const equiposEjemplo: Omit<Equipo, "fecha_creacion" | "fecha_actualizacion">[] = [
-  {
-    id: "435",
-    nombre: "River Plate",
-    abreviatura: "RIV",
-    escudo: "https://media.api-sports.io/football/teams/435.png",
-    ligaId: "128",
-    estadio: "Estadio Monumental",
-    ciudad: "Buenos Aires",
-    fundacion: 1901,
-    colores: {
-      principal: "#E91E63",
-      secundario: "#FFFFFF",
+const equiposEjemplo: Omit<Equipo, "fecha_creacion" | "fecha_actualizacion">[] =
+  [
+    {
+      id: "435",
+      nombre: "River Plate",
+      abreviatura: "RIV",
+      escudo: "https://media.api-sports.io/football/teams/435.png",
+      ligaId: "128",
+      estadio: "Estadio Monumental",
+      ciudad: "Buenos Aires",
+      fundacion: 1901,
+      colores: {
+        principal: "#E91E63",
+        secundario: "#FFFFFF",
+      },
     },
-  },
-  {
-    id: "451",
-    nombre: "Boca Juniors",
-    abreviatura: "BOC",
-    escudo: "https://media.api-sports.io/football/teams/451.png",
-    ligaId: "128",
-    estadio: "La Bombonera",
-    ciudad: "Buenos Aires",
-    fundacion: 1905,
-    colores: {
-      principal: "#0054A6",
-      secundario: "#FFD700",
+    {
+      id: "451",
+      nombre: "Boca Juniors",
+      abreviatura: "BOC",
+      escudo: "https://media.api-sports.io/football/teams/451.png",
+      ligaId: "128",
+      estadio: "La Bombonera",
+      ciudad: "Buenos Aires",
+      fundacion: 1905,
+      colores: {
+        principal: "#0054A6",
+        secundario: "#FFD700",
+      },
     },
-  },
-  {
-    id: "33",
-    nombre: "Manchester United",
-    abreviatura: "MUN",
-    escudo: "https://media.api-sports.io/football/teams/33.png",
-    ligaId: "39",
-    estadio: "Old Trafford",
-    ciudad: "Manchester",
-    fundacion: 1878,
-    colores: {
-      principal: "#DA020E",
-      secundario: "#FFFFFF",
+    {
+      id: "33",
+      nombre: "Manchester United",
+      abreviatura: "MUN",
+      escudo: "https://media.api-sports.io/football/teams/33.png",
+      ligaId: "39",
+      estadio: "Old Trafford",
+      ciudad: "Manchester",
+      fundacion: 1878,
+      colores: {
+        principal: "#DA020E",
+        secundario: "#FFFFFF",
+      },
     },
-  },
-  {
-    id: "541",
-    nombre: "Real Madrid",
-    abreviatura: "RMA",
-    escudo: "https://media.api-sports.io/football/teams/541.png",
-    ligaId: "140",
-    estadio: "Santiago Bernabéu",
-    ciudad: "Madrid",
-    fundacion: 1902,
-    colores: {
-      principal: "#FFFFFF",
-      secundario: "#FFD700",
+    {
+      id: "541",
+      nombre: "Real Madrid",
+      abreviatura: "RMA",
+      escudo: "https://media.api-sports.io/football/teams/541.png",
+      ligaId: "140",
+      estadio: "Santiago Bernabéu",
+      ciudad: "Madrid",
+      fundacion: 1902,
+      colores: {
+        principal: "#FFFFFF",
+        secundario: "#FFD700",
+      },
     },
-  },
-];
+  ];
 
 // Datos de ejemplo para jugadores
-const jugadoresEjemplo: Omit<Jugador, "fecha_creacion" | "fecha_actualizacion">[] = [
+const jugadoresEjemplo: Omit<
+  Jugador,
+  "fecha_creacion" | "fecha_actualizacion"
+>[] = [
   {
     id: "276",
     nombre: "Lionel",
@@ -186,7 +190,10 @@ async function seedEquipos() {
   for (const equipo of equiposEjemplo) {
     try {
       // Verificar que la liga existe
-      const ligaDoc = await adminDb.collection("ligas").doc(equipo.ligaId).get();
+      const ligaDoc = await adminDb
+        .collection("ligas")
+        .doc(equipo.ligaId)
+        .get();
       if (!ligaDoc.exists) {
         console.warn(
           `  ⚠️  Liga ${equipo.ligaId} no existe. Saltando equipo ${equipo.nombre}.`
@@ -205,7 +212,9 @@ async function seedEquipos() {
           },
           { merge: true }
         );
-      console.log(`  ✅ Equipo creado/actualizado: ${equipo.nombre} (${equipo.id})`);
+      console.log(
+        `  ✅ Equipo creado/actualizado: ${equipo.nombre} (${equipo.id})`
+      );
     } catch (error) {
       console.error(`  ❌ Error al crear equipo ${equipo.id}:`, error);
     }
@@ -219,7 +228,10 @@ async function seedJugadores() {
   for (const jugador of jugadoresEjemplo) {
     try {
       // Verificar que el equipo existe
-      const equipoDoc = await adminDb.collection("equipos").doc(jugador.equipoId).get();
+      const equipoDoc = await adminDb
+        .collection("equipos")
+        .doc(jugador.equipoId)
+        .get();
       if (!equipoDoc.exists) {
         console.warn(
           `  ⚠️  Equipo ${jugador.equipoId} no existe. Saltando jugador ${jugador.nombre_completo}.`
@@ -254,9 +266,13 @@ async function seedFirebase() {
     // Verificar que adminDb esté inicializado
     if (!adminDb) {
       console.error("❌ Error: Firebase Admin no está inicializado.");
-      console.error("   Por favor, verifica que las variables de entorno estén configuradas correctamente:");
+      console.error(
+        "   Por favor, verifica que las variables de entorno estén configuradas correctamente:"
+      );
       console.error("   - FIREBASE_SERVICE_ACCOUNT_KEY (JSON completo)");
-      console.error("   - O FIREBASE_PROJECT_ID, FIREBASE_CLIENT_EMAIL, FIREBASE_PRIVATE_KEY");
+      console.error(
+        "   - O FIREBASE_PROJECT_ID, FIREBASE_CLIENT_EMAIL, FIREBASE_PRIVATE_KEY"
+      );
       process.exit(1);
     }
 
@@ -281,8 +297,7 @@ seedFirebase()
     console.log("\n✨ Script finalizado.");
     process.exit(0);
   })
-  .catch((error) => {
+  .catch(error => {
     console.error("❌ Error fatal:", error);
     process.exit(1);
   });
-

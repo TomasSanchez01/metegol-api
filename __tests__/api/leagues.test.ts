@@ -27,7 +27,7 @@ describe("GET /api/leagues", () => {
     expect(response.status).toBe(200);
     expect(data).toHaveProperty("leagues");
     expect(Array.isArray(data.leagues)).toBe(true);
-    
+
     // Todas las ligas deben ser del país especificado
     data.leagues.forEach((league: any) => {
       expect(league.country.toLowerCase()).toBe("argentina");
@@ -44,7 +44,7 @@ describe("GET /api/leagues", () => {
     expect(response.status).toBe(200);
     expect(data).toHaveProperty("leagues");
     expect(Array.isArray(data.leagues)).toBe(true);
-    
+
     // Todas las ligas deben ser de España
     data.leagues.forEach((league: any) => {
       expect(league.country.toLowerCase()).toBe("spain");
@@ -71,4 +71,3 @@ describe("GET /api/leagues", () => {
     expect(typeof firstLeague.country).toBe("string");
   });
 });
-

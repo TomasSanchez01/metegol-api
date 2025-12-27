@@ -1,16 +1,16 @@
 /**
  * Script de población inicial de datos básicos en Firestore
- * 
+ *
  * Uso: npx tsx scripts/populateInitialData.ts
- * 
+ *
  * Este script carga información básica importante (ligas, equipos, formaciones) a Firestore
  * por única vez, para tener poblada la base de datos.
- * 
+ *
  * Carga:
  * - Ligas principales (desde STATIC_LEAGUES o desde la API externa)
  * - Equipos de las ligas principales
  * - Formaciones de partidos recientes (opcional)
- * 
+ *
  * Los datos se crean con merge: true para evitar duplicar si ya existen.
  */
 
@@ -65,7 +65,9 @@ async function populateLeagues() {
         .get();
 
       if (ligaDoc.exists) {
-        console.log(`  ⏭️  Liga ${league.name} (${league.id}) ya existe, saltando...`);
+        console.log(
+          `  ⏭️  Liga ${league.name} (${league.id}) ya existe, saltando...`
+        );
         stats.ligas.procesadas++;
         continue;
       }
@@ -82,10 +84,7 @@ async function populateLeagues() {
         fecha_actualizacion: now,
       };
 
-      await adminDb
-        .collection("ligas")
-        .doc(liga.id)
-        .set(liga, { merge: true });
+      await adminDb.collection("ligas").doc(liga.id).set(liga, { merge: true });
 
       console.log(`  ✅ Liga creada: ${liga.nombre} (${liga.id})`);
       stats.ligas.procesadas++;
@@ -149,9 +148,12 @@ async function populateTeams() {
       stats.equipos.creadas += teams.length;
 
       // Pequeño delay para no saturar la API
-      await new Promise((resolve) => setTimeout(resolve, 500));
+      await new Promise(resolve => setTimeout(resolve, 500));
     } catch (error) {
-      console.error(`  ❌ Error al poblar equipos de la liga ${leagueId}:`, error);
+      console.error(
+        `  ❌ Error al poblar equipos de la liga ${leagueId}:`,
+        error
+      );
       stats.equipos.errores++;
     }
   }
@@ -187,7 +189,9 @@ async function populateFormations() {
     );
 
     if (!matches || matches.length === 0) {
-      console.log("  ⚠️  No se encontraron partidos recientes para obtener formaciones");
+      console.log(
+        "  ⚠️  No se encontraron partidos recientes para obtener formaciones"
+      );
       return;
     }
 
@@ -252,7 +256,7 @@ async function populateFormations() {
         stats.formaciones.creadas += lineups.home && lineups.away ? 2 : 1;
 
         // Pequeño delay para no saturar la API
-        await new Promise((resolve) => setTimeout(resolve, 500));
+        await new Promise(resolve => setTimeout(resolve, 500));
       } catch (error) {
         console.error(
           `  ❌ Error al obtener formaciones del partido ${match.fixture.id}:`,
@@ -293,7 +297,7 @@ async function saveFormation(
         nombre: lineup.coach.name,
         foto: lineup.coach.photo || "",
       },
-      alineacion: lineup.startXI.map((player) => ({
+      alineacion: lineup.startXI.map(player => ({
         jugadorId: player.player.id.toString(),
         nombre: player.player.name,
         dorsal: player.player.number,
@@ -301,7 +305,7 @@ async function saveFormation(
         grid: player.player.grid,
         es_titular: true,
       })),
-      suplentes: lineup.substitutes.map((player) => ({
+      suplentes: lineup.substitutes.map(player => ({
         jugadorId: player.player.id.toString(),
         nombre: player.player.name,
         dorsal: player.player.number || 0,
@@ -351,9 +355,13 @@ async function populateInitialData() {
     // Verificar que adminDb esté inicializado
     if (!adminDb) {
       console.error("❌ Error: Firebase Admin no está inicializado.");
-      console.error("   Por favor, verifica que las variables de entorno estén configuradas correctamente:");
+      console.error(
+        "   Por favor, verifica que las variables de entorno estén configuradas correctamente:"
+      );
       console.error("   - FIREBASE_SERVICE_ACCOUNT_KEY (JSON completo)");
-      console.error("   - O FIREBASE_PROJECT_ID, FIREBASE_CLIENT_EMAIL, FIREBASE_PRIVATE_KEY");
+      console.error(
+        "   - O FIREBASE_PROJECT_ID, FIREBASE_CLIENT_EMAIL, FIREBASE_PRIVATE_KEY"
+      );
       process.exit(1);
     }
 
@@ -372,17 +380,27 @@ async function populateInitialData() {
     await populateTeams();
 
     // Poblar formaciones (opcional, puede tomar tiempo)
-    console.log("\n⚠️  Nota: La población de formaciones es opcional y puede tomar tiempo.");
-    console.log("   Se poblarán formaciones de los últimos 10 partidos de la Liga Profesional Argentina.");
-    
+    console.log(
+      "\n⚠️  Nota: La población de formaciones es opcional y puede tomar tiempo."
+    );
+    console.log(
+      "   Se poblarán formaciones de los últimos 10 partidos de la Liga Profesional Argentina."
+    );
+
     await populateFormations();
 
     // Mostrar resumen
     console.log("\n✅ Población inicial completada.\n");
     console.log("📊 Resumen:");
-    console.log(`  Ligas: ${stats.ligas.procesadas} procesadas, ${stats.ligas.creadas} creadas, ${stats.ligas.errores} errores`);
-    console.log(`  Equipos: ${stats.equipos.procesadas} procesadas, ${stats.equipos.creadas} creadas, ${stats.equipos.errores} errores`);
-    console.log(`  Formaciones: ${stats.formaciones.procesadas} procesadas, ${stats.formaciones.creadas} creadas, ${stats.formaciones.errores} errores`);
+    console.log(
+      `  Ligas: ${stats.ligas.procesadas} procesadas, ${stats.ligas.creadas} creadas, ${stats.ligas.errores} errores`
+    );
+    console.log(
+      `  Equipos: ${stats.equipos.procesadas} procesadas, ${stats.equipos.creadas} creadas, ${stats.equipos.errores} errores`
+    );
+    console.log(
+      `  Formaciones: ${stats.formaciones.procesadas} procesadas, ${stats.formaciones.creadas} creadas, ${stats.formaciones.errores} errores`
+    );
 
     console.log("\n✨ Script finalizado.");
   } catch (error) {
@@ -397,8 +415,7 @@ populateInitialData()
     console.log("\n✨ Script finalizado.");
     process.exit(0);
   })
-  .catch((error) => {
+  .catch(error => {
     console.error("❌ Error fatal:", error);
     process.exit(1);
   });
-

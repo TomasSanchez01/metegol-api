@@ -1,6 +1,6 @@
 /**
  * Script para listar las colecciones existentes en Firestore
- * 
+ *
  * Uso: npx tsx scripts/checkCollections.ts
  */
 
@@ -16,9 +16,13 @@ async function checkCollections() {
     // Verificar que adminDb esté inicializado
     if (!adminDb) {
       console.error("❌ Error: Firebase Admin no está inicializado.");
-      console.error("   Por favor, verifica que las variables de entorno estén configuradas correctamente:");
+      console.error(
+        "   Por favor, verifica que las variables de entorno estén configuradas correctamente:"
+      );
       console.error("   - FIREBASE_SERVICE_ACCOUNT_KEY (JSON completo)");
-      console.error("   - O FIREBASE_PROJECT_ID, FIREBASE_CLIENT_EMAIL, FIREBASE_PRIVATE_KEY");
+      console.error(
+        "   - O FIREBASE_PROJECT_ID, FIREBASE_CLIENT_EMAIL, FIREBASE_PRIVATE_KEY"
+      );
       process.exit(1);
     }
 
@@ -38,7 +42,7 @@ async function checkCollections() {
       try {
         const snapshot = await collection.limit(1).get();
         const count = snapshot.size;
-        
+
         if (count > 0) {
           // Intentar obtener el conteo total (esto puede ser costoso para colecciones grandes)
           const allDocs = await collection.count().get();
@@ -65,8 +69,7 @@ checkCollections()
     console.log("\n✨ Script finalizado.");
     process.exit(0);
   })
-  .catch((error) => {
+  .catch(error => {
     console.error("❌ Error fatal:", error);
     process.exit(1);
   });
-

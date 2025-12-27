@@ -1,141 +1,156 @@
 {
-    "indexes": [{
-            "collectionGroup": "api_cache",
-            "queryScope": "COLLECTION",
-            "fields": [{
-                    "fieldPath": "timestamp",
-                    "order": "ASCENDING"
-                },
-                {
-                    "fieldPath": "ttl",
-                    "order": "ASCENDING"
-                }
-            ]
+  "indexes": [
+    {
+      "collectionGroup": "api_cache",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "timestamp",
+          "order": "ASCENDING"
         },
         {
-            "collectionGroup": "api_cache",
-            "queryScope": "COLLECTION",
-            "fields": [{
-                    "fieldPath": "key",
-                    "order": "ASCENDING"
-                },
-                {
-                    "fieldPath": "timestamp",
-                    "order": "DESCENDING"
-                }
-            ]
-        },
-        {
-            "collectionGroup": "api_cache",
-            "queryScope": "COLLECTION",
-            "fields": [{
-                    "fieldPath": "lastModified",
-                    "order": "ASCENDING"
-                },
-                {
-                    "fieldPath": "timestamp",
-                    "order": "DESCENDING"
-                }
-            ]
-        },
-        {
-            "collectionGroup": "partidos",
-            "queryScope": "COLLECTION",
-            "fields": [{
-                    "fieldPath": "fecha",
-                    "order": "ASCENDING"
-                },
-                {
-                    "fieldPath": "ligaId",
-                    "order": "ASCENDING"
-                }
-            ]
-        },
-        {
-            "collectionGroup": "partidos",
-            "queryScope": "COLLECTION",
-            "fields": [{
-                    "fieldPath": "ligaId",
-                    "order": "ASCENDING"
-                },
-                {
-                    "fieldPath": "fecha",
-                    "order": "DESCENDING"
-                }
-            ]
-        },
-        {
-            "collectionGroup": "partidos",
-            "queryScope": "COLLECTION",
-            "fields": [{
-                    "fieldPath": "equipo_local.id",
-                    "order": "ASCENDING"
-                },
-                {
-                    "fieldPath": "fecha",
-                    "order": "DESCENDING"
-                }
-            ]
-        },
-        {
-            "collectionGroup": "partidos",
-            "queryScope": "COLLECTION",
-            "fields": [{
-                    "fieldPath": "equipo_visitante.id",
-                    "order": "ASCENDING"
-                },
-                {
-                    "fieldPath": "fecha",
-                    "order": "DESCENDING"
-                }
-            ]
-        },
-        {
-            "collectionGroup": "standings",
-            "queryScope": "COLLECTION",
-            "fields": [{
-                    "fieldPath": "ligaId",
-                    "order": "ASCENDING"
-                },
-                {
-                    "fieldPath": "temporada",
-                    "order": "ASCENDING"
-                }
-            ]
-        },
-        {
-            "collectionGroup": "formaciones",
-            "queryScope": "COLLECTION",
-            "fields": [{
-                    "fieldPath": "equipoId",
-                    "order": "ASCENDING"
-                },
-                {
-                    "fieldPath": "fecha",
-                    "order": "DESCENDING"
-                }
-            ]
-        },
-        {
-            "collectionGroup": "jugadores",
-            "queryScope": "COLLECTION",
-            "fields": [{
-                    "fieldPath": "equipoId",
-                    "order": "ASCENDING"
-                },
-                {
-                    "fieldPath": "posicion",
-                    "order": "ASCENDING"
-                }
-            ]
+          "fieldPath": "ttl",
+          "order": "ASCENDING"
         }
-    ],
-    "fieldOverrides": [{
-        "collectionGroup": "api_cache",
-        "fieldPath": "data",
-        "indexes": [{
-            "order": "ASCENDING",
-            "queryScope": "COLLECTION"
-        }]
-    }]
+      ]
+    },
+    {
+      "collectionGroup": "api_cache",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "key",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "timestamp",
+          "order": "DESCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "api_cache",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "lastModified",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "timestamp",
+          "order": "DESCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "partidos",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "fecha",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "ligaId",
+          "order": "ASCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "partidos",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "ligaId",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "fecha",
+          "order": "DESCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "partidos",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "equipo_local.id",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "fecha",
+          "order": "DESCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "partidos",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "equipo_visitante.id",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "fecha",
+          "order": "DESCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "standings",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "ligaId",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "temporada",
+          "order": "ASCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "formaciones",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "equipoId",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "fecha",
+          "order": "DESCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "jugadores",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "equipoId",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "posicion",
+          "order": "ASCENDING"
+        }
+      ]
+    }
+  ],
+  "fieldOverrides": [
+    {
+      "collectionGroup": "api_cache",
+      "fieldPath": "data",
+      "indexes": [
+        {
+          "order": "ASCENDING",
+          "queryScope": "COLLECTION"
+        }
+      ]
+    }
+  ]
 }

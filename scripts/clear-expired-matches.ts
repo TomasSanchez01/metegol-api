@@ -67,13 +67,15 @@ function isExpired(
     if (ttlField === "fixture" || ttlField === "both") {
       const ttlFixture = doc.ttl_fixture;
       if (ttlFixture) {
-        const ttlTimestamp = ttlFixture instanceof Timestamp
-          ? ttlFixture.toMillis()
-          : typeof ttlFixture === "number"
-          ? ttlFixture
-          : ttlFixture._seconds
-          ? ttlFixture._seconds * 1000 + (ttlFixture._nanoseconds || 0) / 1000000
-          : null;
+        const ttlTimestamp =
+          ttlFixture instanceof Timestamp
+            ? ttlFixture.toMillis()
+            : typeof ttlFixture === "number"
+              ? ttlFixture
+              : ttlFixture._seconds
+                ? ttlFixture._seconds * 1000 +
+                  (ttlFixture._nanoseconds || 0) / 1000000
+                : null;
 
         if (ttlTimestamp && now > ttlTimestamp) {
           return true;
@@ -84,13 +86,15 @@ function isExpired(
     if (ttlField === "detalles" || ttlField === "both") {
       const ttlDetalles = doc.ttl_detalles;
       if (ttlDetalles) {
-        const ttlTimestamp = ttlDetalles instanceof Timestamp
-          ? ttlDetalles.toMillis()
-          : typeof ttlDetalles === "number"
-          ? ttlDetalles
-          : ttlDetalles._seconds
-          ? ttlDetalles._seconds * 1000 + (ttlDetalles._nanoseconds || 0) / 1000000
-          : null;
+        const ttlTimestamp =
+          ttlDetalles instanceof Timestamp
+            ? ttlDetalles.toMillis()
+            : typeof ttlDetalles === "number"
+              ? ttlDetalles
+              : ttlDetalles._seconds
+                ? ttlDetalles._seconds * 1000 +
+                  (ttlDetalles._nanoseconds || 0) / 1000000
+                : null;
 
         if (ttlTimestamp && now > ttlTimestamp) {
           return true;
@@ -122,7 +126,9 @@ function getTtlFieldDescription(ttlField: TtlFieldOption): string {
 
 async function clearExpiredMatches() {
   if (!adminDb) {
-    console.error("❌ adminDb no está inicializado. Revisa tu configuración de Firebase.");
+    console.error(
+      "❌ adminDb no está inicializado. Revisa tu configuración de Firebase."
+    );
     process.exit(1);
   }
 
@@ -130,13 +136,19 @@ async function clearExpiredMatches() {
   const ttlFieldOption = TTL_FIELD as TtlFieldOption;
 
   if (!["fixture", "detalles", "both"].includes(ttlFieldOption)) {
-    console.error(`❌ Valor inválido para --ttl-field: ${TTL_FIELD}. Debe ser 'fixture', 'detalles' o 'both'`);
+    console.error(
+      `❌ Valor inválido para --ttl-field: ${TTL_FIELD}. Debe ser 'fixture', 'detalles' o 'both'`
+    );
     process.exit(1);
   }
 
   console.log(`🔎 Preparando limpieza de colección '${COLLECTION}'`);
-  console.log(`  Modo: ${DELETE_ALL ? "Borrar TODOS los documentos" : "Borrar solo documentos expirados"}`);
-  console.log(`  Campo TTL verificado: ${getTtlFieldDescription(ttlFieldOption)}`);
+  console.log(
+    `  Modo: ${DELETE_ALL ? "Borrar TODOS los documentos" : "Borrar solo documentos expirados"}`
+  );
+  console.log(
+    `  Campo TTL verificado: ${getTtlFieldDescription(ttlFieldOption)}`
+  );
   console.log(`  Batch size: ${BATCH_SIZE}`);
   if (LIMIT) console.log(`  Límite: ${LIMIT}`);
 
@@ -170,11 +182,15 @@ async function clearExpiredMatches() {
 
       // Mostrar progreso cada 1000 documentos
       if (totalProcessed % 1000 === 0) {
-        console.log(`  📊 Procesados ${totalProcessed} documentos, encontrados ${total} expirados...`);
+        console.log(
+          `  📊 Procesados ${totalProcessed} documentos, encontrados ${total} expirados...`
+        );
       }
     }
 
-    console.log(`📋 DRY RUN: documentos que se borrarían: ${total} (de ${totalProcessed} procesados)`);
+    console.log(
+      `📋 DRY RUN: documentos que se borrarían: ${total} (de ${totalProcessed} procesados)`
+    );
     return;
   }
 
@@ -213,9 +229,13 @@ async function clearExpiredMatches() {
       // eslint-disable-next-line no-await-in-loop
       await batch.commit();
       totalDeleted += toDelete;
-      console.log(`🗑️  Borrados ${toDelete} documentos (total borrados: ${totalDeleted}, procesados: ${totalProcessed + snap.size})`);
+      console.log(
+        `🗑️  Borrados ${toDelete} documentos (total borrados: ${totalDeleted}, procesados: ${totalProcessed + snap.size})`
+      );
     } else {
-      console.log(`  ⏭️  Batch sin documentos expirados (procesados: ${totalProcessed + snap.size})`);
+      console.log(
+        `  ⏭️  Batch sin documentos expirados (procesados: ${totalProcessed + snap.size})`
+      );
     }
 
     totalProcessed += snap.size;
@@ -237,11 +257,12 @@ async function clearExpiredMatches() {
     await new Promise(r => setTimeout(r, 200));
   }
 
-  console.log(`✅ Operación completada. Documentos eliminados: ${totalDeleted} (de ${totalProcessed} procesados)`);
+  console.log(
+    `✅ Operación completada. Documentos eliminados: ${totalDeleted} (de ${totalProcessed} procesados)`
+  );
 }
 
 clearExpiredMatches().catch(err => {
   console.error("Error durante la limpieza:", err);
   process.exit(1);
 });
-

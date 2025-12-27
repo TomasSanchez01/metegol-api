@@ -23,6 +23,7 @@ interface Standing {
     for: number;
     against: number;
   };
+  group: string;
   form: string;
 }
 
@@ -38,10 +39,12 @@ export default function LeaguePage() {
   const params = useParams();
   const leagueId = params.id as string;
 
+  const [allStandings, setAllStandings] = useState<Standing[][]>([]);
   const [standings, setStandings] = useState<Standing[]>([]);
   const [leagueInfo, setLeagueInfo] = useState<LeagueInfo | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [selectedGroup, setSelectedGroup] = useState<number>(0);
 
   useEffect(() => {
     const fetchLeagueData = async () => {
@@ -53,7 +56,12 @@ export default function LeaguePage() {
           throw new Error("Error al cargar los datos de la liga");
         }
 
-        setStandings(data.standings || []);
+        console.log(data);
+
+        // data.standings es un arreglo de arreglos
+        setAllStandings(data.standings || []);
+        // Por defecto, mostrar el primer grupo
+        setStandings(data.standings[0] || []);
         setLeagueInfo(data.league || null);
       } catch (err) {
         setError(err instanceof Error ? err.message : "Error desconocido");
@@ -66,6 +74,13 @@ export default function LeaguePage() {
       fetchLeagueData();
     }
   }, [leagueId]);
+
+  // Cuando cambia el grupo seleccionado, actualizar la tabla
+  useEffect(() => {
+    if (allStandings.length > 0 && allStandings[selectedGroup]) {
+      setStandings(allStandings[selectedGroup]);
+    }
+  }, [selectedGroup, allStandings]);
 
   if (loading) {
     return (
@@ -173,11 +188,39 @@ export default function LeaguePage() {
           </div>
         </div>
 
+        {/* Tabs para seleccionar grupo */}
+        {allStandings.length > 1 && (
+          <div className="mb-3 overflow-hidden rounded-xl border border-[#2a2e39] bg-[#181c23]">
+            <div className="flex overflow-x-auto">
+              {allStandings.map((group, index) => {
+                const groupName =
+                  group[0]?.group || `Grupo ${String.fromCharCode(65 + index)}`;
+                return (
+                  <button
+                    key={index}
+                    onClick={() => setSelectedGroup(index)}
+                    className={`flex-1 cursor-pointer border-b-2 px-4 py-3 text-sm font-medium whitespace-nowrap transition-colors ${
+                      selectedGroup === index
+                        ? "border-blue-500 bg-[#0f1419] text-white"
+                        : "border-transparent text-white/60 hover:bg-[#1f2329] hover:text-white"
+                    }`}
+                  >
+                    {groupName}
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+        )}
+
         {/* Standings Table */}
         <div className="overflow-hidden rounded-xl border border-[#2a2e39] bg-[#181c23]">
           <div className="border-b border-[#2a2e39] bg-[#0f1419] px-3 py-2">
             <h2 className="text-sm font-bold text-white">
               Tabla de Posiciones
+              {allStandings.length > 1 &&
+                standings[0]?.group &&
+                ` - ${standings[0].group}`}
             </h2>
           </div>
 

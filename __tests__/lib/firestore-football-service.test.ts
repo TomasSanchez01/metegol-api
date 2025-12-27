@@ -80,7 +80,7 @@ describe("FirestoreFootballService", () => {
       const team = await service.getTeamById(teamId);
 
       expect(team === null || typeof team === "object").toBe(true);
-      
+
       if (team) {
         expect(team).toHaveProperty("id");
         expect(team).toHaveProperty("name");
@@ -106,4 +106,3 @@ describe("FirestoreFootballService", () => {
     });
   });
 });
-

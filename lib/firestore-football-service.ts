@@ -13,6 +13,8 @@ import type {
   Partido,
   Standing,
   Formacion,
+  PosicionStanding,
+  GrupoPosiciones,
 } from "@/types/futbol";
 import { Timestamp } from "firebase-admin/firestore";
 import type admin from "firebase-admin";
@@ -67,7 +69,7 @@ export class FirestoreFootballService {
 
     // Verificar si el TTL está expirado
     const ttlExpired = this.isTimestampExpired(partido.ttl_fixture);
-    
+
     // Si el TTL no está expirado, no es stale
     if (!ttlExpired) {
       return false;
@@ -78,8 +80,9 @@ export class FirestoreFootballService {
     // ya que los datos históricos no cambian
     const matchDate = partido.fecha?.toDate();
     if (matchDate) {
-      const daysSinceMatch = (Date.now() - matchDate.getTime()) / (1000 * 60 * 60 * 24);
-      
+      const daysSinceMatch =
+        (Date.now() - matchDate.getTime()) / (1000 * 60 * 60 * 24);
+
       // Si el partido es muy antiguo (más de 30 días), no refrescar
       // aunque el TTL esté expirado
       if (daysSinceMatch > 30) {
@@ -356,9 +359,13 @@ export class FirestoreFootballService {
             const age = Date.now() - cached.timestamp;
             // Para fechas lejanas (más de 30 días), usar TTL mucho más largo (1 año)
             const queryDate = new Date(from + "T00:00:00.000Z");
-            const daysSinceQuery = (Date.now() - queryDate.getTime()) / (1000 * 60 * 60 * 24);
-            const maxAgeMs = daysSinceQuery > 30 ? 365 * 24 * 60 * 60 * 1000 : 24 * 60 * 60 * 1000; // 1 año para fechas lejanas, 24h para recientes
-            
+            const daysSinceQuery =
+              (Date.now() - queryDate.getTime()) / (1000 * 60 * 60 * 24);
+            const maxAgeMs =
+              daysSinceQuery > 30
+                ? 365 * 24 * 60 * 60 * 1000
+                : 24 * 60 * 60 * 1000; // 1 año para fechas lejanas, 24h para recientes
+
             if (age < this.EMPTY_QUERIES_CACHE_TTL) {
               // Si no había partidos y fue consultado recientemente, no consultar API
               if (!cached.hasMatches && age < maxAgeMs) {
@@ -393,11 +400,15 @@ export class FirestoreFootballService {
             // Para fechas lejanas (más de 30 días), usar TTL mucho más largo (1 año)
             // ya que los datos históricos no cambian
             const queryDate = new Date(from + "T00:00:00.000Z");
-            const daysSinceQuery = (Date.now() - queryDate.getTime()) / (1000 * 60 * 60 * 24);
+            const daysSinceQuery =
+              (Date.now() - queryDate.getTime()) / (1000 * 60 * 60 * 24);
             const maxHoursSinceCheck = daysSinceQuery > 30 ? 365 * 24 : 24; // 1 año para fechas lejanas, 24h para recientes
 
             // Si consultamos hace menos del tiempo máximo y no había partidos, no consultar la API
-            if (hoursSinceCheck < maxHoursSinceCheck && emptyQuery?.has_matches === false) {
+            if (
+              hoursSinceCheck < maxHoursSinceCheck &&
+              emptyQuery?.has_matches === false
+            ) {
               // console.log(
               //   `ℹ️  No matches found for league ${leagueId} on ${from} (checked ${hoursSinceCheck.toFixed(1)}h ago). Skipping API call.`
               // );
@@ -708,9 +719,13 @@ export class FirestoreFootballService {
               const age = Date.now() - cached.timestamp;
               // Para fechas lejanas (más de 30 días), usar TTL mucho más largo (1 año)
               const queryDate = new Date(from + "T00:00:00.000Z");
-              const daysSinceQuery = (Date.now() - queryDate.getTime()) / (1000 * 60 * 60 * 24);
-              const maxAgeMs = daysSinceQuery > 30 ? 365 * 24 * 60 * 60 * 1000 : 24 * 60 * 60 * 1000; // 1 año para fechas lejanas, 24h para recientes
-              
+              const daysSinceQuery =
+                (Date.now() - queryDate.getTime()) / (1000 * 60 * 60 * 24);
+              const maxAgeMs =
+                daysSinceQuery > 30
+                  ? 365 * 24 * 60 * 60 * 1000
+                  : 24 * 60 * 60 * 1000; // 1 año para fechas lejanas, 24h para recientes
+
               if (age < this.EMPTY_QUERIES_CACHE_TTL) {
                 // Si no había partidos y fue consultado recientemente, no consultar API
                 if (!cached.hasMatches && age < maxAgeMs) {
@@ -745,11 +760,15 @@ export class FirestoreFootballService {
               // Para fechas lejanas (más de 30 días), usar TTL mucho más largo (1 año)
               // ya que los datos históricos no cambian
               const queryDate = new Date(from + "T00:00:00.000Z");
-              const daysSinceQuery = (Date.now() - queryDate.getTime()) / (1000 * 60 * 60 * 24);
+              const daysSinceQuery =
+                (Date.now() - queryDate.getTime()) / (1000 * 60 * 60 * 24);
               const maxHoursSinceCheck = daysSinceQuery > 30 ? 365 * 24 : 24; // 1 año para fechas lejanas, 24h para recientes
 
               // Si consultamos hace menos del tiempo máximo y no había partidos, no consultar la API
-              if (hoursSinceCheck < maxHoursSinceCheck && emptyQuery?.has_matches === false) {
+              if (
+                hoursSinceCheck < maxHoursSinceCheck &&
+                emptyQuery?.has_matches === false
+              ) {
                 // console.log(
                 //   `ℹ️  No matches found for league ${leagueId} on ${from} (checked ${hoursSinceCheck.toFixed(1)}h ago). Skipping API call.`
                 // );
@@ -924,8 +943,11 @@ export class FirestoreFootballService {
           .get();
         const liga = ligaDoc.exists ? (ligaDoc.data() as Liga) : null;
 
-        return {
-          standings: standing.posiciones.map(pos => ({
+        console.log(standing);
+
+        // Convertir grupos a formato de respuesta (array de arrays)
+        const standings = standing.grupos.map(grupo =>
+          grupo.posiciones.map(pos => ({
             rank: pos.posicion,
             team: {
               id: parseInt(pos.equipo.id),
@@ -942,7 +964,12 @@ export class FirestoreFootballService {
               against: pos.goles.en_contra,
             },
             form: pos.forma || "",
-          })),
+            group: pos.grupo || grupo.nombre,
+          }))
+        );
+
+        return {
+          standings,
           league: liga
             ? {
                 id: parseInt(liga.id),
@@ -981,12 +1008,12 @@ export class FirestoreFootballService {
       // Guardar en Firestore
       await this.saveStandingsToFirestore(standingsResponse, leagueId, season);
 
-      // Formatear respuesta
-      const standings = standingsResponse[0]?.league?.standings?.[0] || [];
+      // Formatear respuesta (arreglo de arreglos)
+      const allStandings = standingsResponse[0]?.league?.standings || [];
       const leagueData = standingsResponse[0]?.league || {};
 
-      return {
-        standings: standings.map((team: any) => ({
+      const standings = allStandings.map((grupo: any[]) =>
+        grupo.map((team: any) => ({
           rank: team.rank,
           team: {
             id: team.team.id,
@@ -1003,7 +1030,12 @@ export class FirestoreFootballService {
             against: team.all.goals.against,
           },
           form: team.form || "",
-        })),
+          group: team.group || "",
+        }))
+      );
+
+      return {
+        standings,
         league: {
           id: (leagueData as any).id || leagueId,
           name: (leagueData as any).name || `Liga ${leagueId}`,
@@ -1337,7 +1369,7 @@ export class FirestoreFootballService {
         console.error(
           `Error mapping statistics for match ${partido.id}:`,
           error
-        )
+        );
       }
     } else {
       // Solo mostrar advertencia si el partido debería tener estadísticas (finalizado o en progreso)
@@ -2174,32 +2206,50 @@ export class FirestoreFootballService {
     try {
       const standingsId = `standings_${leagueId}_${season}`;
       const league = standingsResponse[0]?.league;
-      const posiciones = league?.standings?.[0] || [];
+      const allStandings = league?.standings || [];
+
+      // Mapear todos los grupos usando GrupoPosiciones
+      const grupos: GrupoPosiciones[] = allStandings.map(
+        (grupo: any[], index: number) => {
+          // Determinar el nombre del grupo
+          const groupName =
+            grupo[0]?.group ||
+            (allStandings.length > 1
+              ? `Grupo ${String.fromCharCode(65 + index)}`
+              : "General");
+
+          return {
+            nombre: groupName,
+            posiciones: grupo.map((team: any) => ({
+              posicion: team.rank,
+              equipo: {
+                id: team.team.id.toString(),
+                nombre: team.team.name,
+                logo: team.team.logo,
+              },
+              puntos: team.points,
+              partidos_jugados: team.all.played,
+              ganados: team.all.win,
+              empatados: team.all.draw,
+              perdidos: team.all.lose,
+              goles: {
+                a_favor: team.all.goals.for,
+                en_contra: team.all.goals.against,
+              },
+              diferencia_goles: team.goalsDiff || 0,
+              forma: team.form || "",
+              grupo: team.group || "",
+            })),
+          };
+        }
+      );
 
       const standing: Standing = {
         id: standingsId,
         ligaId: leagueId.toString(),
         temporada: season.toString(),
         fecha_actualizacion_datos: Timestamp.now(),
-        posiciones: posiciones.map((team: any) => ({
-          posicion: team.rank,
-          equipo: {
-            id: team.team.id.toString(),
-            nombre: team.team.name,
-            logo: team.team.logo,
-          },
-          puntos: team.points,
-          partidos_jugados: team.all.played,
-          ganados: team.all.win,
-          empatados: team.all.draw,
-          perdidos: team.all.lose,
-          goles: {
-            a_favor: team.all.goals.for,
-            en_contra: team.all.goals.against,
-          },
-          diferencia_goles: team.goalsDiff || 0,
-          forma: team.form || "",
-        })),
+        grupos,
         fecha_creacion: Timestamp.now(),
         fecha_actualizacion: Timestamp.now(),
       };
@@ -2209,9 +2259,12 @@ export class FirestoreFootballService {
         .doc(standingsId)
         .set(standing, { merge: true });
 
-      // console.log(`✅ Saved standings to Firestore for league ${leagueId}`);
+      console.log(
+        `✅ Saved standings to Firestore for league ${leagueId}, season ${season}, groups: ${allStandings.length}`
+      );
     } catch (error) {
-      // console.error("Error saving standings to Firestore:", error);
+      console.error("❌ Error saving standings to Firestore:", error);
+      throw error; // Re-lanzar el error para que se vea en los logs
     }
   }
 

@@ -42,7 +42,9 @@ async function confirmPrompt(message: string) {
 
 async function deleteEmptyQueries() {
   if (!adminDb) {
-    console.error("❌ adminDb no está inicializado. Revisa tu configuración de Firebase.");
+    console.error(
+      "❌ adminDb no está inicializado. Revisa tu configuración de Firebase."
+    );
     process.exit(1);
   }
 
@@ -70,7 +72,9 @@ async function deleteEmptyQueries() {
       lastDoc = snap.docs[snap.docs.length - 1];
       if (snap.size < BATCH_SIZE) break;
     }
-    console.log(`📋 DRY RUN: documentos encontrados en 'empty_queries': ${total}`);
+    console.log(
+      `📋 DRY RUN: documentos encontrados en 'empty_queries': ${total}`
+    );
     return;
   }
 
@@ -107,7 +111,9 @@ async function deleteEmptyQueries() {
     totalDeleted += deletedNow;
     processed += deletedNow;
 
-    console.log(`🗑️  Borrados ${deletedNow} documentos (total borrados: ${totalDeleted})`);
+    console.log(
+      `🗑️  Borrados ${deletedNow} documentos (total borrados: ${totalDeleted})`
+    );
 
     if (LIMIT && totalDeleted >= LIMIT) {
       console.log(`📌 Límite alcanzado (${LIMIT}). Terminando.`);
@@ -119,7 +125,9 @@ async function deleteEmptyQueries() {
     await new Promise(r => setTimeout(r, 200));
   }
 
-  console.log(`✅ Operación completada. Documentos eliminados: ${totalDeleted}`);
+  console.log(
+    `✅ Operación completada. Documentos eliminados: ${totalDeleted}`
+  );
 }
 
 deleteEmptyQueries().catch(err => {

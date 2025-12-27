@@ -242,8 +242,9 @@ export function CacheContent({
                       </div>
                       <div className="mt-2 text-xs text-gray-500">
                         {stats.totals.structuredCollections.toLocaleString()}{" "}
-                        estructurados + {stats.totals.emptyQueries.toLocaleString()}{" "}
-                        consultas vacías
+                        estructurados +{" "}
+                        {stats.totals.emptyQueries.toLocaleString()} consultas
+                        vacías
                       </div>
                     </div>
                   )}
@@ -317,9 +318,17 @@ export function CacheContent({
                 <ul className="space-y-1 text-sm">
                   <li>• Cache persistente en Firestore (sin TTL)</li>
                   <li>• Datos almacenados en colecciones estructuradas</li>
-                  <li>• Verificación automática antes de consultar API externa</li>
-                  <li>• Enriquecimiento automático de partidos (stats, events, lineups)</li>
-                  <li>• Consultas vacías se guardan para evitar llamadas innecesarias</li>
+                  <li>
+                    • Verificación automática antes de consultar API externa
+                  </li>
+                  <li>
+                    • Enriquecimiento automático de partidos (stats, events,
+                    lineups)
+                  </li>
+                  <li>
+                    • Consultas vacías se guardan para evitar llamadas
+                    innecesarias
+                  </li>
                 </ul>
               </div>
               <div>
@@ -343,4 +352,3 @@ export function CacheContent({
     </div>
   );
 }
-

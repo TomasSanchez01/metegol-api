@@ -1,6 +1,6 @@
 /**
  * Tipos TypeScript para el esquema de Firestore del proyecto Metegol
- * 
+ *
  * Estos tipos representan las entidades normalizadas almacenadas en Firestore
  * y mantienen compatibilidad con los tipos de la API externa.
  */
@@ -213,6 +213,15 @@ export interface PosicionStanding {
   };
   diferencia_goles: number;
   forma?: string; // Ej: "WWWWW" (últimos 5 partidos)
+  grupo?: string; // Ej: "Group A", "Group B" (para competiciones con grupos)
+}
+
+/**
+ * Interface para un grupo de posiciones en la tabla
+ */
+export interface GrupoPosiciones {
+  nombre: string; // Nombre del grupo: "Group A", "Group B", etc.
+  posiciones: PosicionStanding[];
 }
 
 /**
@@ -223,7 +232,7 @@ export interface Standing {
   ligaId: string; // Referencia a ligas/{ligaId}
   temporada: string; // Ej: "2024"
   fecha_actualizacion_datos: Timestamp; // Fecha de actualización de los datos de la API
-  posiciones: PosicionStanding[];
+  grupos: GrupoPosiciones[]; // Array de grupos, cada uno con su nombre y posiciones
   fecha_creacion: Timestamp;
   fecha_actualizacion: Timestamp;
 }
@@ -232,11 +241,26 @@ export interface Standing {
  * Tipos de ayuda para crear documentos (sin timestamps)
  */
 export type LigaInput = Omit<Liga, "fecha_creacion" | "fecha_actualizacion">;
-export type EquipoInput = Omit<Equipo, "fecha_creacion" | "fecha_actualizacion">;
-export type JugadorInput = Omit<Jugador, "fecha_creacion" | "fecha_actualizacion">;
-export type FormacionInput = Omit<Formacion, "fecha_creacion" | "fecha_actualizacion">;
-export type PartidoInput = Omit<Partido, "fecha_creacion" | "fecha_actualizacion">;
-export type StandingInput = Omit<Standing, "fecha_creacion" | "fecha_actualizacion">;
+export type EquipoInput = Omit<
+  Equipo,
+  "fecha_creacion" | "fecha_actualizacion"
+>;
+export type JugadorInput = Omit<
+  Jugador,
+  "fecha_creacion" | "fecha_actualizacion"
+>;
+export type FormacionInput = Omit<
+  Formacion,
+  "fecha_creacion" | "fecha_actualizacion"
+>;
+export type PartidoInput = Omit<
+  Partido,
+  "fecha_creacion" | "fecha_actualizacion"
+>;
+export type StandingInput = Omit<
+  Standing,
+  "fecha_creacion" | "fecha_actualizacion"
+>;
 
 /**
  * Tipos de ayuda para actualizar documentos (campos opcionales)
@@ -247,4 +271,3 @@ export type JugadorUpdate = Partial<Omit<Jugador, "id" | "fecha_creacion">>;
 export type FormacionUpdate = Partial<Omit<Formacion, "id" | "fecha_creacion">>;
 export type PartidoUpdate = Partial<Omit<Partido, "id" | "fecha_creacion">>;
 export type StandingUpdate = Partial<Omit<Standing, "id" | "fecha_creacion">>;
-

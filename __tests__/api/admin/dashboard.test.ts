@@ -108,7 +108,9 @@ describe("/api/admin/dashboard", () => {
   describe("POST", () => {
     it("debe refrescar estadísticas", async () => {
       // Crear request con action=refresh-stats usando NextRequest mock
-      const url = new URL("http://localhost:3000/api/admin/dashboard?action=refresh-stats");
+      const url = new URL(
+        "http://localhost:3000/api/admin/dashboard?action=refresh-stats"
+      );
       const request = {
         nextUrl: url,
         method: "POST",
@@ -130,7 +132,9 @@ describe("/api/admin/dashboard", () => {
 
     it("debe devolver error para acción inválida", async () => {
       // Crear request con action inválida usando NextRequest mock
-      const url = new URL("http://localhost:3000/api/admin/dashboard?action=invalid");
+      const url = new URL(
+        "http://localhost:3000/api/admin/dashboard?action=invalid"
+      );
       const request = {
         nextUrl: url,
         method: "POST",
@@ -149,4 +153,3 @@ describe("/api/admin/dashboard", () => {
     });
   });
 });
-

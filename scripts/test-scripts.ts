@@ -1,7 +1,7 @@
 /**
  * Script de prueba para validar que todos los scripts tienen la sintaxis correcta
  * y que los tipos están bien definidos.
- * 
+ *
  * Uso: npx tsx scripts/test-scripts.ts
  */
 
@@ -26,9 +26,7 @@ async function testScript(scriptPath: string): Promise<TestResult> {
 
   try {
     // Verificar sintaxis con tsx --check
-    const { stdout, stderr } = await execAsync(
-      `npx tsx --check ${scriptPath}`
-    );
+    const { stdout, stderr } = await execAsync(`npx tsx --check ${scriptPath}`);
 
     if (stderr && stderr.includes("error")) {
       result.error = stderr;
@@ -69,10 +67,10 @@ async function testAllScripts() {
 
   // Resumen
   console.log("\n📊 Resumen de pruebas:");
-  console.log("=" .repeat(50));
+  console.log("=".repeat(50));
 
-  const passed = results.filter((r) => r.syntax && r.typeCheck).length;
-  const failed = results.filter((r) => !r.syntax || !r.typeCheck).length;
+  const passed = results.filter(r => r.syntax && r.typeCheck).length;
+  const failed = results.filter(r => !r.syntax || !r.typeCheck).length;
 
   for (const result of results) {
     const status = result.syntax && result.typeCheck ? "✅" : "❌";
@@ -82,7 +80,7 @@ async function testAllScripts() {
     }
   }
 
-  console.log("=" .repeat(50));
+  console.log("=".repeat(50));
   console.log(`✅ Pasaron: ${passed}/${results.length}`);
   console.log(`❌ Fallaron: ${failed}/${results.length}`);
 
@@ -91,8 +89,7 @@ async function testAllScripts() {
   }
 }
 
-testAllScripts().catch((error) => {
+testAllScripts().catch(error => {
   console.error("❌ Error fatal:", error);
   process.exit(1);
 });
-

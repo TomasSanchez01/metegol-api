@@ -58,4 +58,3 @@ describe("GET /api/standings", () => {
     expect(data.error).toContain("ID de liga inválido");
   });
 });
-

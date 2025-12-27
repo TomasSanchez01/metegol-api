@@ -63,4 +63,3 @@ describe("GET /api/fixtures", () => {
     expect([200, 500]).toContain(response.status);
   });
 });
-

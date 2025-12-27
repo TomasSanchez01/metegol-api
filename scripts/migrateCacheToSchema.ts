@@ -1,14 +1,14 @@
 /**
  * Script para migrar datos de api_cache a las nuevas colecciones estructuradas
- * 
+ *
  * Uso: npx tsx scripts/migrateCacheToSchema.ts
- * 
+ *
  * Este script:
  * - Lee documentos de api_cache
  * - Detecta el tipo de información (liga, equipo, partido, etc.)
  * - Extrae y normaliza los datos
  * - Escribe los documentos en sus respectivas colecciones estructuradas
- * 
+ *
  * LIMITACIONES:
  * - Este script es una base inicial. Puede requerir ajustes según la estructura
  *   específica de los datos en api_cache.
@@ -43,7 +43,7 @@ function removeUndefined(obj: any): any {
   }
 
   if (Array.isArray(obj)) {
-    return obj.map(removeUndefined).filter((item) => item !== undefined);
+    return obj.map(removeUndefined).filter(item => item !== undefined);
   }
 
   if (typeof obj === "object") {
@@ -109,7 +109,9 @@ function detectDataType(key: string, data: any): string | null {
 
   // Intentar detectar por estructura de datos
   if (data?.response) {
-    const response = Array.isArray(data.response) ? data.response[0] : data.response;
+    const response = Array.isArray(data.response)
+      ? data.response[0]
+      : data.response;
 
     if (response?.league?.id) {
       if (response?.league?.standings) {
@@ -138,7 +140,9 @@ function detectDataType(key: string, data: any): string | null {
  */
 async function migrateLiga(data: any): Promise<void> {
   try {
-    const response = Array.isArray(data.response) ? data.response[0] : data.response;
+    const response = Array.isArray(data.response)
+      ? data.response[0]
+      : data.response;
     if (!response?.league) {
       return;
     }
@@ -156,7 +160,8 @@ async function migrateLiga(data: any): Promise<void> {
       nombre: league.name || "",
       pais: league.country?.name || response.country?.name || "",
       logo: league.logo || "",
-      temporada_actual: league.season?.toString() || new Date().getFullYear().toString(),
+      temporada_actual:
+        league.season?.toString() || new Date().getFullYear().toString(),
       tipo: league.type || "league",
       fecha_creacion: now,
       fecha_actualizacion: now,
@@ -175,7 +180,9 @@ async function migrateLiga(data: any): Promise<void> {
  */
 async function migrateEquipo(data: any): Promise<void> {
   try {
-    const response = Array.isArray(data.response) ? data.response[0] : data.response;
+    const response = Array.isArray(data.response)
+      ? data.response[0]
+      : data.response;
     if (!response?.team) {
       return;
     }
@@ -201,7 +208,10 @@ async function migrateEquipo(data: any): Promise<void> {
       fecha_actualizacion: now,
     };
 
-    await adminDb.collection("equipos").doc(equipoId).set(equipo, { merge: true });
+    await adminDb
+      .collection("equipos")
+      .doc(equipoId)
+      .set(equipo, { merge: true });
     stats.equipos.creadas++;
   } catch (error) {
     console.error("  ❌ Error al migrar equipo:", error);
@@ -214,7 +224,9 @@ async function migrateEquipo(data: any): Promise<void> {
  */
 async function migrateJugador(data: any): Promise<void> {
   try {
-    const response = Array.isArray(data.response) ? data.response[0] : data.response;
+    const response = Array.isArray(data.response)
+      ? data.response[0]
+      : data.response;
     if (!response?.player) {
       return;
     }
@@ -227,7 +239,8 @@ async function migrateJugador(data: any): Promise<void> {
     }
 
     const now = Timestamp.now();
-    const nombreCompleto = `${player.firstname || ""} ${player.lastname || ""}`.trim();
+    const nombreCompleto =
+      `${player.firstname || ""} ${player.lastname || ""}`.trim();
 
     const jugador: Jugador = {
       id: jugadorId,
@@ -241,15 +254,22 @@ async function migrateJugador(data: any): Promise<void> {
       equipoId: response.statistics?.[0]?.team?.id?.toString() || "",
       foto: player.photo || "",
       fecha_nacimiento: player.birth?.date || undefined,
-      altura: player.height ? parseInt(player.height.replace(" cm", "")) : undefined,
-      peso: player.weight ? parseInt(player.weight.replace(" kg", "")) : undefined,
+      altura: player.height
+        ? parseInt(player.height.replace(" cm", ""))
+        : undefined,
+      peso: player.weight
+        ? parseInt(player.weight.replace(" kg", ""))
+        : undefined,
       pie_preferido: player.injured ? undefined : undefined, // Campo no disponible en la API
       fecha_creacion: now,
       fecha_actualizacion: now,
     };
 
     if (jugador.equipoId) {
-      await adminDb.collection("jugadores").doc(jugadorId).set(jugador, { merge: true });
+      await adminDb
+        .collection("jugadores")
+        .doc(jugadorId)
+        .set(jugador, { merge: true });
       stats.jugadores.creadas++;
     }
   } catch (error) {
@@ -307,7 +327,8 @@ async function migratePartido(data: any): Promise<void> {
         estado: {
           largo: fixture.status?.long || "",
           corto: fixture.status?.short || "",
-          ...(fixture.status?.elapsed !== undefined && fixture.status?.elapsed !== null
+          ...(fixture.status?.elapsed !== undefined &&
+          fixture.status?.elapsed !== null
             ? { tiempo_transcurrido: fixture.status.elapsed }
             : {}),
         },
@@ -330,7 +351,11 @@ async function migratePartido(data: any): Promise<void> {
       };
 
       // Agregar estadisticas solo si existen
-      if (item.statistics && Array.isArray(item.statistics) && item.statistics.length > 0) {
+      if (
+        item.statistics &&
+        Array.isArray(item.statistics) &&
+        item.statistics.length > 0
+      ) {
         partido.estadisticas = {
           local: item.statistics[0]?.statistics || [],
           visitante: item.statistics[1]?.statistics || [],
@@ -388,7 +413,9 @@ async function migratePartido(data: any): Promise<void> {
       try {
         // Validar que la fecha sea válida
         if (!fixture.date || isNaN(new Date(fixture.date).getTime())) {
-          console.error(`  ⚠️  Fecha inválida para partido ${partidoId}: ${fixture.date}`);
+          console.error(
+            `  ⚠️  Fecha inválida para partido ${partidoId}: ${fixture.date}`
+          );
           stats.partidos.errores++;
           continue;
         }
@@ -396,13 +423,19 @@ async function migratePartido(data: any): Promise<void> {
         // Limpiar campos undefined antes de guardar
         const cleanedPartido = removeUndefined(partido);
 
-        await adminDb.collection("partidos").doc(partidoId).set(cleanedPartido, { merge: true });
+        await adminDb
+          .collection("partidos")
+          .doc(partidoId)
+          .set(cleanedPartido, { merge: true });
         stats.partidos.creadas++;
         partidosCreados++;
       } catch (writeError: any) {
         // Solo mostrar errores cada 100 para no saturar la consola
         if (stats.partidos.errores % 100 === 0) {
-          console.error(`  ❌ Error al escribir partido ${partidoId}:`, writeError.message || writeError);
+          console.error(
+            `  ❌ Error al escribir partido ${partidoId}:`,
+            writeError.message || writeError
+          );
         }
         stats.partidos.errores++;
       }
@@ -422,14 +455,17 @@ async function migratePartido(data: any): Promise<void> {
  */
 async function migrateStanding(data: any): Promise<void> {
   try {
-    const response = Array.isArray(data.response) ? data.response[0] : data.response;
+    const response = Array.isArray(data.response)
+      ? data.response[0]
+      : data.response;
     if (!response?.league) {
       return;
     }
 
     const league = response.league;
     const ligaId = league.id?.toString();
-    const temporada = league.season?.toString() || new Date().getFullYear().toString();
+    const temporada =
+      league.season?.toString() || new Date().getFullYear().toString();
 
     if (!ligaId || !league.standings) {
       return;
@@ -468,7 +504,10 @@ async function migrateStanding(data: any): Promise<void> {
       fecha_actualizacion: now,
     };
 
-    await adminDb.collection("standings").doc(standingsId).set(standing, { merge: true });
+    await adminDb
+      .collection("standings")
+      .doc(standingsId)
+      .set(standing, { merge: true });
     stats.standings.creadas++;
   } catch (error) {
     console.error("  ❌ Error al migrar standing:", error);
@@ -527,14 +566,20 @@ async function processCacheDocument(
  */
 async function migrateCacheToSchema() {
   try {
-    console.log("🔄 Iniciando migración de api_cache a esquema estructurado...\n");
+    console.log(
+      "🔄 Iniciando migración de api_cache a esquema estructurado...\n"
+    );
 
     // Verificar que adminDb esté inicializado
     if (!adminDb) {
       console.error("❌ Error: Firebase Admin no está inicializado.");
-      console.error("   Por favor, verifica que las variables de entorno estén configuradas correctamente:");
+      console.error(
+        "   Por favor, verifica que las variables de entorno estén configuradas correctamente:"
+      );
       console.error("   - FIREBASE_SERVICE_ACCOUNT_KEY (JSON completo)");
-      console.error("   - O FIREBASE_PROJECT_ID, FIREBASE_CLIENT_EMAIL, FIREBASE_PRIVATE_KEY");
+      console.error(
+        "   - O FIREBASE_PROJECT_ID, FIREBASE_CLIENT_EMAIL, FIREBASE_PRIVATE_KEY"
+      );
       process.exit(1);
     }
 
@@ -547,14 +592,18 @@ async function migrateCacheToSchema() {
       return;
     }
 
-    console.log(`📊 Se encontraron ${snapshot.size} documentos en api_cache.\n`);
+    console.log(
+      `📊 Se encontraron ${snapshot.size} documentos en api_cache.\n`
+    );
 
     // Procesar cada documento
     let processed = 0;
     for (const doc of snapshot.docs) {
       processed++;
       if (processed % 100 === 0) {
-        console.log(`  📦 Procesados ${processed}/${snapshot.size} documentos...`);
+        console.log(
+          `  📦 Procesados ${processed}/${snapshot.size} documentos...`
+        );
       }
       await processCacheDocument(doc);
     }
@@ -562,15 +611,29 @@ async function migrateCacheToSchema() {
     // Mostrar estadísticas
     console.log("\n✅ Migración completada.\n");
     console.log("📊 Estadísticas:");
-    console.log(`  Ligas: ${stats.ligas.procesadas} procesadas, ${stats.ligas.creadas} creadas, ${stats.ligas.errores} errores`);
-    console.log(`  Equipos: ${stats.equipos.procesadas} procesadas, ${stats.equipos.creadas} creadas, ${stats.equipos.errores} errores`);
-    console.log(`  Jugadores: ${stats.jugadores.procesadas} procesadas, ${stats.jugadores.creadas} creadas, ${stats.jugadores.errores} errores`);
-    console.log(`  Partidos: ${stats.partidos.procesadas} procesadas, ${stats.partidos.creadas} creadas, ${stats.partidos.errores} errores`);
-    console.log(`  Standings: ${stats.standings.procesadas} procesadas, ${stats.standings.creadas} creadas, ${stats.standings.errores} errores`);
+    console.log(
+      `  Ligas: ${stats.ligas.procesadas} procesadas, ${stats.ligas.creadas} creadas, ${stats.ligas.errores} errores`
+    );
+    console.log(
+      `  Equipos: ${stats.equipos.procesadas} procesadas, ${stats.equipos.creadas} creadas, ${stats.equipos.errores} errores`
+    );
+    console.log(
+      `  Jugadores: ${stats.jugadores.procesadas} procesadas, ${stats.jugadores.creadas} creadas, ${stats.jugadores.errores} errores`
+    );
+    console.log(
+      `  Partidos: ${stats.partidos.procesadas} procesadas, ${stats.partidos.creadas} creadas, ${stats.partidos.errores} errores`
+    );
+    console.log(
+      `  Standings: ${stats.standings.procesadas} procesadas, ${stats.standings.creadas} creadas, ${stats.standings.errores} errores`
+    );
     console.log(`  Otros: ${stats.otros} documentos no migrados`);
 
-    console.log("\n⚠️  NOTA: Revisa los datos migrados y valida que sean correctos.");
-    console.log("    Algunos campos pueden requerir ajustes manuales (por ejemplo, ligaId en equipos).");
+    console.log(
+      "\n⚠️  NOTA: Revisa los datos migrados y valida que sean correctos."
+    );
+    console.log(
+      "    Algunos campos pueden requerir ajustes manuales (por ejemplo, ligaId en equipos)."
+    );
   } catch (error) {
     console.error("❌ Error durante la migración:", error);
     process.exit(1);
@@ -583,8 +646,7 @@ migrateCacheToSchema()
     console.log("\n✨ Script finalizado.");
     process.exit(0);
   })
-  .catch((error) => {
+  .catch(error => {
     console.error("❌ Error fatal:", error);
     process.exit(1);
   });
-

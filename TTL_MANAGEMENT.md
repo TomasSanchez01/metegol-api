@@ -51,14 +51,17 @@ Este archivo contiene las funciones que calculan los valores de TTL según el es
 #### En `saveMatchesToFirestore()` (línea ~1789):
 
 **TTL para Fixtures** (línea ~1917):
+
 ```typescript
 const fixtureTtlMs = calculateFixtureTtlMs(matchDate, estado.corto);
 partido.ttl_fixture = Timestamp.fromMillis(Date.now() + fixtureTtlMs);
 ```
+
 - Se establece **siempre** cuando se guarda un partido
 - Se calcula basándose en la fecha del partido y su estado
 
 **TTL para Detalles** (línea ~1946):
+
 ```typescript
 const detailsTtlMs = calculateDetailsTtlMs(match.fixture.status.short);
 if (match.statistics || match.events) {
@@ -71,9 +74,14 @@ if (match.statistics || match.events) {
   // Si no hay estadísticas/eventos y no hay ttl_detalles existente,
   // establecer TTL largo (30 días) para partidos terminados
   // Esto evita intentar enriquecer repetidamente
-  if (isFinishedStatus(match.fixture.status.short) || isLiveStatus(match.fixture.status.short)) {
+  if (
+    isFinishedStatus(match.fixture.status.short) ||
+    isLiveStatus(match.fixture.status.short)
+  ) {
     if (daysSinceMatch > 1) {
-      partido.ttl_detalles = Timestamp.fromMillis(Date.now() + (30 * 24 * 60 * 60 * 1000));
+      partido.ttl_detalles = Timestamp.fromMillis(
+        Date.now() + 30 * 24 * 60 * 60 * 1000
+      );
     }
   }
 }
@@ -84,26 +92,30 @@ if (match.statistics || match.events) {
 #### En `getFixtures()` (línea ~166):
 
 **Verificación de Fixtures Expirados** (línea ~203):
+
 ```typescript
 if (leagueId && this.shouldRefreshFixtures(partidosDocs)) {
   const refreshedMatches = await this.refreshFixturesFromExternal(...);
 }
 ```
+
 - Si los fixtures están expirados, se refrescan desde la API externa
 
 **Filtrado de Partidos que Necesitan Detalles** (línea ~198):
+
 ```typescript
 const matchesNeedingDetails = matches.filter((match, index) => {
   const partido = partidosDocs[index];
   const hasAllDetails = !!match.statistics && !!match.events;
   const detailsStale = this.isDetailsDataStale(partido);
-  
+
   // Lógica para evitar enriquecer partidos antiguos sin estadísticas
   // ...
-  
+
   return !hasAllDetails || detailsStale;
 });
 ```
+
 - Solo se enriquecen partidos que:
   - No tienen todos los detalles Y el TTL está expirado
   - O son muy recientes y no tienen detalles
@@ -115,10 +127,11 @@ Similar lógica a `getFixtures()`, pero para múltiples ligas.
 ### 5. **TTL para Formaciones** - `lib/firestore-football-service.ts`
 
 En `saveLineupsToFormaciones()` (línea ~1649):
+
 ```typescript
 ttl_expiracion: Timestamp.fromMillis(
   Date.now() + calculateLineupsTtlMs() // 30 días
-)
+);
 ```
 
 ## 🔄 Flujo Completo del TTL
@@ -147,20 +160,21 @@ ttl_expiracion: Timestamp.fromMillis(
 
 ## 📊 Valores de TTL por Tipo
 
-| Tipo de Dato | Estado | TTL |
-|--------------|--------|-----|
-| **Fixture** | En vivo | 5 minutos |
-| **Fixture** | Futuro | 2 horas |
-| **Fixture** | Terminado hoy | 24 horas |
-| **Fixture** | Terminado (pasado) | 30 días |
-| **Detalles** | En vivo | 5 minutos |
-| **Detalles** | Terminado | 24 horas |
-| **Detalles** | Sin estadísticas (antiguo) | 30 días (evitar reintentos) |
-| **Formaciones** | Cualquiera | 30 días |
+| Tipo de Dato    | Estado                     | TTL                         |
+| --------------- | -------------------------- | --------------------------- |
+| **Fixture**     | En vivo                    | 5 minutos                   |
+| **Fixture**     | Futuro                     | 2 horas                     |
+| **Fixture**     | Terminado hoy              | 24 horas                    |
+| **Fixture**     | Terminado (pasado)         | 30 días                     |
+| **Detalles**    | En vivo                    | 5 minutos                   |
+| **Detalles**    | Terminado                  | 24 horas                    |
+| **Detalles**    | Sin estadísticas (antiguo) | 30 días (evitar reintentos) |
+| **Formaciones** | Cualquiera                 | 30 días                     |
 
 ## 🎯 Objetivo del TTL
 
 El TTL permite:
+
 1. **Evitar llamadas innecesarias** a la API externa
 2. **Mantener datos actualizados** para partidos en vivo
 3. **Preservar datos históricos** sin refrescarlos constantemente
@@ -172,4 +186,3 @@ El TTL permite:
 - `lib/firestore-football-service.ts` - Uso y verificación de TTL
 - `types/futbol.ts` - Definición de tipos con campos TTL
 - `PRELOAD_SYSTEM.md` - Documentación original del sistema de preload
-

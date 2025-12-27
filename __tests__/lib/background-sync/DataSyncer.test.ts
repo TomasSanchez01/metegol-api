@@ -38,12 +38,14 @@ describe("DataSyncer", () => {
     } as any;
 
     // Configurar mocks
-    (FootballApiServer as jest.MockedClass<typeof FootballApiServer>).mockImplementation(
-      () => mockApi
-    );
-    (FirestoreFootballService as jest.MockedClass<
-      typeof FirestoreFootballService
-    >).mockImplementation(() => mockFirestoreService);
+    (
+      FootballApiServer as jest.MockedClass<typeof FootballApiServer>
+    ).mockImplementation(() => mockApi);
+    (
+      FirestoreFootballService as jest.MockedClass<
+        typeof FirestoreFootballService
+      >
+    ).mockImplementation(() => mockFirestoreService);
 
     // Crear instancia
     syncer = new DataSyncer("test-api-key");
@@ -290,7 +292,7 @@ describe("DataSyncer", () => {
     it("debe limpiar la cola de trabajos", () => {
       // Primero agregar algunos jobs a la cola
       const initialStats = syncer.getStats();
-      
+
       // Limpiar la cola
       syncer.clearQueue();
 
@@ -309,4 +311,3 @@ describe("DataSyncer", () => {
     jest.clearAllTimers();
   });
 });
-

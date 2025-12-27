@@ -19,7 +19,10 @@ jest.mock("@/lib/middleware/auth", () => ({
 // Mock del singleton
 jest.mock("@/lib/background-sync/syncer-singleton");
 
-import { getSyncer, resetGlobalSyncer } from "@/lib/background-sync/syncer-singleton";
+import {
+  getSyncer,
+  resetGlobalSyncer,
+} from "@/lib/background-sync/syncer-singleton";
 
 describe("/api/admin/sync", () => {
   let mockSyncer: jest.Mocked<DataSyncer>;
@@ -270,4 +273,3 @@ describe("/api/admin/sync", () => {
     });
   });
 });
-
