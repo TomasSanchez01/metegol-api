@@ -339,10 +339,10 @@ export default function SimpleMatchCard({ match }: Props) {
       <div
         className={`overflow-hidden transition-all duration-300 ease-in-out ${showBasicInfo ? "max-h-96 opacity-100" : "max-h-0 opacity-0"}`}
       >
-        <div className="border-t border-[#2a2e39] bg-[#0f1419] px-3 pb-3">
+        <div className="border-t border-[#2a2e39] bg-[#0f1419] px-3 pt-2 pb-3">
           {/* Goals Sliders - Below team names within same clickable block */}
           {!isUpcoming && (goalsHome.length > 0 || goalsAway.length > 0) && (
-            <div className="grid w-full grid-cols-2 gap-1 pt-2">
+            <div className="grid w-full grid-cols-2 gap-1">
               {/* Home Team Goals Slider */}
               <div className="flex w-full items-center">
                 {goalsHome.length > 0 ? (
@@ -440,7 +440,7 @@ export default function SimpleMatchCard({ match }: Props) {
       <div
         className={`overflow-hidden transition-all duration-300 ease-in-out ${showBasicInfo && showAdvanced ? "max-h-96 opacity-100" : "max-h-0 opacity-0"}`}
       >
-        <div className="border-t border-[#2a2e39] bg-[#0a0e13] px-3 pb-3">
+        <div className="border-t border-[#2a2e39] bg-[#0a0e13] px-3 pt-2 pb-3">
           {/* Tabs */}
           <div className="mb-3 flex gap-1 text-xs">
             <Tab
