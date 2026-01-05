@@ -915,15 +915,28 @@ export class FirestoreFootballService {
 
   /**
    * Obtiene standings desde Firestore, si no hay, consulta la API externa
+   * Si no hay datos en la temporada solicitada, intenta con temporadas anteriores (hasta 5 años atrás)
    */
   async getStandings(
     leagueId: number,
-    season: number
+    season: number,
+    originalSeason?: number
   ): Promise<{
     standings: any[];
     league: any;
   }> {
     try {
+      // Guardar la temporada original solicitada para evitar búsquedas infinitas
+      const requestedSeason = originalSeason || season;
+      const minSeason = requestedSeason - 5; // Límite: buscar hasta 5 temporadas atrás
+
+      // Si ya buscamos demasiado atrás, lanzar error
+      if (season < minSeason) {
+        throw new Error(
+          `No standings data found for league ${leagueId} (searched seasons ${requestedSeason} to ${minSeason})`
+        );
+      }
+
       // Consultar Firestore primero
       const standingsId = `standings_${leagueId}_${season}`;
       const standingsDoc = await adminDb
@@ -932,9 +945,9 @@ export class FirestoreFootballService {
         .get();
 
       if (standingsDoc.exists) {
-        // console.log(
-        //   `✅ Found standings in Firestore for league ${leagueId}, season ${season}`
-        // );
+        console.log(
+          `✅ Found standings in Firestore for league ${leagueId}, season ${season}`
+        );
         const standing = standingsDoc.data() as Standing;
         // Consulta a ligas puede hacerse en paralelo si se necesita en el futuro
         const ligaDoc = await adminDb
@@ -976,22 +989,22 @@ export class FirestoreFootballService {
                 name: liga.nombre,
                 logo: liga.logo,
                 country: liga.pais,
-                season: parseInt(liga.temporada_actual),
+                season: parseInt(standing.temporada),
               }
             : {
                 id: leagueId,
                 name: `Liga ${leagueId}`,
                 logo: `https://media.api-sports.io/football/leagues/${leagueId}.png`,
                 country: "",
-                season,
+                season: parseInt(standing.temporada),
               },
         };
       }
 
       // Si no hay datos en Firestore, consultar API externa
-      // console.log(
-      //   `⚠️  No standings found in Firestore, fetching from external API...`
-      // );
+      console.log(
+        `⚠️  No standings found in Firestore for league ${leagueId}, season ${season}, fetching from external API...`
+      );
       if (!this.externalApi) {
         throw new Error("FOOTBALL_API_KEY not configured");
       }
@@ -1001,8 +1014,13 @@ export class FirestoreFootballService {
         season
       );
 
+      // Si no hay datos en la API, intentar con la temporada anterior
       if (!standingsResponse || standingsResponse.length === 0) {
-        throw new Error("No standings data found");
+        console.log(
+          `⚠️  No standings found in API for league ${leagueId}, season ${season}. Trying previous season ${season - 1}...`
+        );
+        // Llamada recursiva con la temporada anterior
+        return this.getStandings(leagueId, season - 1, requestedSeason);
       }
 
       // Guardar en Firestore
@@ -1047,7 +1065,10 @@ export class FirestoreFootballService {
         },
       };
     } catch (error) {
-      // console.error("Error getting standings:", error);
+      console.error(
+        `Error getting standings for league ${leagueId}, season ${season}:`,
+        error
+      );
       throw error;
     }
   }

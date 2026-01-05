@@ -19,7 +19,6 @@ export default function LeagueDropup({
   leagues,
 }: LeagueDropupProps) {
   const [isOpen, setIsOpen] = useState(false);
-
   // Filtrar ligas por país seleccionado
   const filteredLeagues = useMemo(() => {
     if (!leagues || !Array.isArray(leagues)) return [];

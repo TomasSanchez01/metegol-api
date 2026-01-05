@@ -59,7 +59,7 @@ function GoalsSlider({ goals, isHomeTeam = true }: GoalsSliderProps) {
     : `${currentGoal.time.elapsed}"`;
 
   return (
-    <div className="flex min-h-[20px] justify-center px-1">
+    <div className="flex min-h-[20px] justify-center">
       <div
         className="transform transition-all duration-700 ease-in-out"
         key={currentIndex}
@@ -232,14 +232,26 @@ export default function SimpleMatchCard({ match }: Props) {
   const possHome = getStat(match.statistics?.home, "Ball Possession");
   const possAway = getStat(match.statistics?.away, "Ball Possession");
 
+  const toggleBasicInfo = () => {
+    const stored = window.localStorage.getItem("extra-info");
+    if (stored === "true" && !showBasicInfo) setShowBasicInfo(true);
+    else setShowBasicInfo(false);
+  };
+
+  const toggleAdvancedInfo = () => {
+    const stored = window.localStorage.getItem("extra-info");
+    if (stored === "true" && !showAdvanced) setShowAdvanced(true);
+    else setShowAdvanced(false);
+  };
+
   return (
     <div className="overflow-hidden rounded-lg border border-[#2a2e39] bg-[#181c23]">
       {/* Main Match Row - Clickable */}
       <div
-        className="cursor-pointer px-1 pt-1 pb-1 transition-colors hover:bg-[#1f2329]"
-        onClick={() => setShowBasicInfo(!showBasicInfo)}
+        className="cursor-pointer py-1 transition-colors hover:bg-[#1f2329] md:px-1"
+        onClick={toggleBasicInfo}
       >
-        <div className="flex items-center justify-between">
+        <div className="flex items-center justify-between px-1">
           {/* Time/Status */}
           <div className="flex flex-col items-start">
             {/* Live Indicator */}
@@ -248,7 +260,7 @@ export default function SimpleMatchCard({ match }: Props) {
                 En Vivo
               </p>
             )}
-            <div className="mr-2 w-16 text-right">
+            <div className="text-right">
               {(!isFinished ||
                 match.fixture.status.short === "PEN" ||
                 match.fixture.status.short === "AET" ||
@@ -263,7 +275,7 @@ export default function SimpleMatchCard({ match }: Props) {
                             match.fixture.status.short === "AET"
                           ? "text-orange-400"
                           : match.fixture.status.short === "FT" || isFinished
-                            ? "ml-1 text-[12px] text-gray-400"
+                            ? "text-[12px] text-gray-400"
                             : "text-white/60"
                   }`}
                 >
@@ -274,7 +286,7 @@ export default function SimpleMatchCard({ match }: Props) {
           </div>
 
           {/* Match Layout: Home Team - Logo - Score - Logo - Away Team */}
-          <div className="flex min-w-0 flex-1 flex-col items-center gap-1">
+          <div className="flex min-w-0 flex-1 flex-col justify-center gap-1">
             <div className="flex w-full items-center justify-center gap-2">
               <span className="flex-1 text-right text-xs leading-tight font-semibold break-words text-white">
                 {abbreviateTeamName(home.name)}
@@ -287,7 +299,7 @@ export default function SimpleMatchCard({ match }: Props) {
                 className="flex-shrink-0 rounded-full bg-white"
               />
 
-              <div className="flex items-center gap-1 px-2">
+              <div className="flex items-center gap-1 md:px-2">
                 <span className="text-[22px] font-bold text-white">
                   {isUpcoming ? "—" : match.goals.home}
                 </span>
@@ -310,33 +322,10 @@ export default function SimpleMatchCard({ match }: Props) {
                 {abbreviateTeamName(away.name)}
               </span>
             </div>
-
-            {/* Goals Sliders - Below team names within same clickable block */}
-            {!isUpcoming && (goalsHome.length > 0 || goalsAway.length > 0) && (
-              <div className="grid w-full grid-cols-2 gap-1">
-                {/* Home Team Goals Slider */}
-                <div className="flex w-full items-center justify-center">
-                  {goalsHome.length > 0 ? (
-                    <GoalsSlider goals={goalsHome} isHomeTeam={true} />
-                  ) : (
-                    <div></div>
-                  )}
-                </div>
-
-                {/* Away Team Goals Slider */}
-                <div className="flex w-full items-center justify-center">
-                  {goalsAway.length > 0 ? (
-                    <GoalsSlider goals={goalsAway} isHomeTeam={false} />
-                  ) : (
-                    <div></div>
-                  )}
-                </div>
-              </div>
-            )}
           </div>
 
           {/* Expand Icon */}
-          <div className="flex w-8 justify-center">
+          <div className="flex w-4 justify-center md:w-8">
             {showBasicInfo ? (
               <ChevronUp size={16} className="text-white/60" />
             ) : (
@@ -351,6 +340,29 @@ export default function SimpleMatchCard({ match }: Props) {
         className={`overflow-hidden transition-all duration-300 ease-in-out ${showBasicInfo ? "max-h-96 opacity-100" : "max-h-0 opacity-0"}`}
       >
         <div className="border-t border-[#2a2e39] bg-[#0f1419] px-3 pb-3">
+          {/* Goals Sliders - Below team names within same clickable block */}
+          {!isUpcoming && (goalsHome.length > 0 || goalsAway.length > 0) && (
+            <div className="grid w-full grid-cols-2 gap-1 pt-2">
+              {/* Home Team Goals Slider */}
+              <div className="flex w-full items-center">
+                {goalsHome.length > 0 ? (
+                  <GoalsSlider goals={goalsHome} isHomeTeam={true} />
+                ) : (
+                  <div></div>
+                )}
+              </div>
+
+              {/* Away Team Goals Slider */}
+              <div className="flex w-full items-center justify-center">
+                {goalsAway.length > 0 ? (
+                  <GoalsSlider goals={goalsAway} isHomeTeam={false} />
+                ) : (
+                  <div></div>
+                )}
+              </div>
+            </div>
+          )}
+
           {/* Cards and Possession - Same layout as before */}
           {!isUpcoming && (
             <div className="mt-2 mb-3">
@@ -414,7 +426,7 @@ export default function SimpleMatchCard({ match }: Props) {
             <button
               onClick={e => {
                 e.stopPropagation();
-                setShowAdvanced(!showAdvanced);
+                toggleAdvancedInfo();
               }}
               className="text-xs font-semibold text-[#51ff9c] transition-colors hover:text-[#66ff99]"
             >

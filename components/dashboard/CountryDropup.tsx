@@ -21,7 +21,6 @@ export default function CountryDropup({
   countries,
 }: CountryDropupProps) {
   const [isOpen, setIsOpen] = useState(false);
-
   const clearFilter = () => {
     onCountryChange(null);
   };

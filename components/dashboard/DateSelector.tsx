@@ -46,7 +46,7 @@ export default function DateSelector({
   );
 
   return (
-    <div className="scrollbar-none flex items-center gap-1.5 overflow-x-auto px-2 py-1.5">
+    <>
       {quickDates.map(({ label, date }) => {
         const selected = isSameDay(selectedDate, date);
         return (
@@ -72,7 +72,7 @@ export default function DateSelector({
           <button
             onClick={() => setOpen(o => !o)}
             // ✅ si NO es quick date, marcamos el botón de Calendario
-            className={`flex h-12 flex-1 flex-col items-center justify-center gap-1 rounded-lg border px-2 py-1.5 text-xs transition-colors ${
+            className={`col-start-3 col-end-5 flex h-8 flex-1 items-center justify-center gap-1 rounded-lg border px-2 py-1.5 text-xs transition-colors ${
               !isQuickSelected
                 ? "border-lime-500 font-semibold text-lime-500"
                 : "border-gray-700 text-white/70 hover:bg-[#333]"
@@ -85,7 +85,7 @@ export default function DateSelector({
                 Calendario
               </span>
             </div>
-            <span className="mt-0.5 text-[8px] leading-tight md:text-[10px]">
+            <span className="mt-0.5 text-[10px] leading-tight md:text-[12px]">
               {formatShort(selectedDate)}
             </span>
           </button>
@@ -108,6 +108,6 @@ export default function DateSelector({
           />
         </PopoverContent>
       </Popover>
-    </div>
+    </>
   );
 }
