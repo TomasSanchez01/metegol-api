@@ -286,7 +286,7 @@ export default function MainDashboard({ initialMatches = [] }: Props) {
 
       {/* Fixed bottom navigation - Dos dropups separados */}
       <div className="flex-shrink-0 px-2 pb-2">
-        <div className="grid grid-cols-2 gap-3">
+        <div className="grid grid-cols-2 gap-1.5 lg:gap-3">
           {/* Dropup de Países */}
           <CountryDropup
             countries={COUNTRIES}

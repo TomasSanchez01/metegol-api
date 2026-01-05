@@ -253,7 +253,7 @@ export default function SimpleMatchCard({ match }: Props) {
       >
         <div className="flex items-center justify-between px-1">
           {/* Time/Status */}
-          <div className="flex flex-col items-start">
+          <div className="flex flex-col items-start pr-1">
             {/* Live Indicator */}
             {isLive && (
               <p className="w-16 text-right text-[10px] font-bold text-[#c3cc5a]">
@@ -296,7 +296,7 @@ export default function SimpleMatchCard({ match }: Props) {
                 alt={home.name}
                 width={24}
                 height={24}
-                className="flex-shrink-0 rounded-full bg-white"
+                className="h-[24px] w-[24px] flex-shrink-0 rounded-full bg-white object-contain"
               />
 
               <div className="flex items-center gap-1 md:px-2">
@@ -316,7 +316,7 @@ export default function SimpleMatchCard({ match }: Props) {
                 alt={away.name}
                 width={24}
                 height={24}
-                className="flex-shrink-0 rounded-full bg-white"
+                className="h-[24px] w-[24px] flex-shrink-0 rounded-full bg-white object-contain"
               />
               <span className="flex-1 text-left text-xs leading-tight font-semibold break-words text-white">
                 {abbreviateTeamName(away.name)}
@@ -325,7 +325,7 @@ export default function SimpleMatchCard({ match }: Props) {
           </div>
 
           {/* Expand Icon */}
-          <div className="flex w-4 justify-center md:w-8">
+          <div className="flex w-4 justify-center md:w-6">
             {showBasicInfo ? (
               <ChevronUp size={16} className="text-white/60" />
             ) : (
@@ -353,7 +353,7 @@ export default function SimpleMatchCard({ match }: Props) {
               </div>
 
               {/* Away Team Goals Slider */}
-              <div className="flex w-full items-center justify-center">
+              <div className="flex w-full items-center justify-end">
                 {goalsAway.length > 0 ? (
                   <GoalsSlider goals={goalsAway} isHomeTeam={false} />
                 ) : (
