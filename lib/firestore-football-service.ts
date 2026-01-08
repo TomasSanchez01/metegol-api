@@ -13,6 +13,8 @@ import type {
   Partido,
   Standing,
   Formacion,
+  PosicionStanding,
+  GrupoPosiciones,
 } from "@/types/futbol";
 import { Timestamp } from "firebase-admin/firestore";
 import type admin from "firebase-admin";
@@ -913,15 +915,28 @@ export class FirestoreFootballService {
 
   /**
    * Obtiene standings desde Firestore, si no hay, consulta la API externa
+   * Si no hay datos en la temporada solicitada, intenta con temporadas anteriores (hasta 5 años atrás)
    */
   async getStandings(
     leagueId: number,
-    season: number
+    season: number,
+    originalSeason?: number
   ): Promise<{
     standings: any[];
     league: any;
   }> {
     try {
+      // Guardar la temporada original solicitada para evitar búsquedas infinitas
+      const requestedSeason = originalSeason || season;
+      const minSeason = requestedSeason - 5; // Límite: buscar hasta 5 temporadas atrás
+
+      // Si ya buscamos demasiado atrás, lanzar error
+      if (season < minSeason) {
+        throw new Error(
+          `No standings data found for league ${leagueId} (searched seasons ${requestedSeason} to ${minSeason})`
+        );
+      }
+
       // Consultar Firestore primero
       const standingsId = `standings_${leagueId}_${season}`;
       const standingsDoc = await adminDb
@@ -930,9 +945,9 @@ export class FirestoreFootballService {
         .get();
 
       if (standingsDoc.exists) {
-        // console.log(
-        //   `✅ Found standings in Firestore for league ${leagueId}, season ${season}`
-        // );
+        console.log(
+          `✅ Found standings in Firestore for league ${leagueId}, season ${season}`
+        );
         const standing = standingsDoc.data() as Standing;
         // Consulta a ligas puede hacerse en paralelo si se necesita en el futuro
         const ligaDoc = await adminDb
@@ -941,8 +956,11 @@ export class FirestoreFootballService {
           .get();
         const liga = ligaDoc.exists ? (ligaDoc.data() as Liga) : null;
 
-        return {
-          standings: standing.posiciones.map(pos => ({
+        console.log(standing);
+
+        // Convertir grupos a formato de respuesta (array de arrays)
+        const standings = standing.grupos.map(grupo =>
+          grupo.posiciones.map(pos => ({
             rank: pos.posicion,
             team: {
               id: parseInt(pos.equipo.id),
@@ -959,29 +977,34 @@ export class FirestoreFootballService {
               against: pos.goles.en_contra,
             },
             form: pos.forma || "",
-          })),
+            group: pos.grupo || grupo.nombre,
+          }))
+        );
+
+        return {
+          standings,
           league: liga
             ? {
                 id: parseInt(liga.id),
                 name: liga.nombre,
                 logo: liga.logo,
                 country: liga.pais,
-                season: parseInt(liga.temporada_actual),
+                season: parseInt(standing.temporada),
               }
             : {
                 id: leagueId,
                 name: `Liga ${leagueId}`,
                 logo: `https://media.api-sports.io/football/leagues/${leagueId}.png`,
                 country: "",
-                season,
+                season: parseInt(standing.temporada),
               },
         };
       }
 
       // Si no hay datos en Firestore, consultar API externa
-      // console.log(
-      //   `⚠️  No standings found in Firestore, fetching from external API...`
-      // );
+      console.log(
+        `⚠️  No standings found in Firestore for league ${leagueId}, season ${season}, fetching from external API...`
+      );
       if (!this.externalApi) {
         throw new Error("FOOTBALL_API_KEY not configured");
       }
@@ -991,19 +1014,24 @@ export class FirestoreFootballService {
         season
       );
 
+      // Si no hay datos en la API, intentar con la temporada anterior
       if (!standingsResponse || standingsResponse.length === 0) {
-        throw new Error("No standings data found");
+        console.log(
+          `⚠️  No standings found in API for league ${leagueId}, season ${season}. Trying previous season ${season - 1}...`
+        );
+        // Llamada recursiva con la temporada anterior
+        return this.getStandings(leagueId, season - 1, requestedSeason);
       }
 
       // Guardar en Firestore
       await this.saveStandingsToFirestore(standingsResponse, leagueId, season);
 
-      // Formatear respuesta
-      const standings = standingsResponse[0]?.league?.standings?.[0] || [];
+      // Formatear respuesta (arreglo de arreglos)
+      const allStandings = standingsResponse[0]?.league?.standings || [];
       const leagueData = standingsResponse[0]?.league || {};
 
-      return {
-        standings: standings.map((team: any) => ({
+      const standings = allStandings.map((grupo: any[]) =>
+        grupo.map((team: any) => ({
           rank: team.rank,
           team: {
             id: team.team.id,
@@ -1020,7 +1048,12 @@ export class FirestoreFootballService {
             against: team.all.goals.against,
           },
           form: team.form || "",
-        })),
+          group: team.group || "",
+        }))
+      );
+
+      return {
+        standings,
         league: {
           id: (leagueData as any).id || leagueId,
           name: (leagueData as any).name || `Liga ${leagueId}`,
@@ -1032,7 +1065,10 @@ export class FirestoreFootballService {
         },
       };
     } catch (error) {
-      // console.error("Error getting standings:", error);
+      console.error(
+        `Error getting standings for league ${leagueId}, season ${season}:`,
+        error
+      );
       throw error;
     }
   }
@@ -2191,32 +2227,50 @@ export class FirestoreFootballService {
     try {
       const standingsId = `standings_${leagueId}_${season}`;
       const league = standingsResponse[0]?.league;
-      const posiciones = league?.standings?.[0] || [];
+      const allStandings = league?.standings || [];
+
+      // Mapear todos los grupos usando GrupoPosiciones
+      const grupos: GrupoPosiciones[] = allStandings.map(
+        (grupo: any[], index: number) => {
+          // Determinar el nombre del grupo
+          const groupName =
+            grupo[0]?.group ||
+            (allStandings.length > 1
+              ? `Grupo ${String.fromCharCode(65 + index)}`
+              : "General");
+
+          return {
+            nombre: groupName,
+            posiciones: grupo.map((team: any) => ({
+              posicion: team.rank,
+              equipo: {
+                id: team.team.id.toString(),
+                nombre: team.team.name,
+                logo: team.team.logo,
+              },
+              puntos: team.points,
+              partidos_jugados: team.all.played,
+              ganados: team.all.win,
+              empatados: team.all.draw,
+              perdidos: team.all.lose,
+              goles: {
+                a_favor: team.all.goals.for,
+                en_contra: team.all.goals.against,
+              },
+              diferencia_goles: team.goalsDiff || 0,
+              forma: team.form || "",
+              grupo: team.group || "",
+            })),
+          };
+        }
+      );
 
       const standing: Standing = {
         id: standingsId,
         ligaId: leagueId.toString(),
         temporada: season.toString(),
         fecha_actualizacion_datos: Timestamp.now(),
-        posiciones: posiciones.map((team: any) => ({
-          posicion: team.rank,
-          equipo: {
-            id: team.team.id.toString(),
-            nombre: team.team.name,
-            logo: team.team.logo,
-          },
-          puntos: team.points,
-          partidos_jugados: team.all.played,
-          ganados: team.all.win,
-          empatados: team.all.draw,
-          perdidos: team.all.lose,
-          goles: {
-            a_favor: team.all.goals.for,
-            en_contra: team.all.goals.against,
-          },
-          diferencia_goles: team.goalsDiff || 0,
-          forma: team.form || "",
-        })),
+        grupos,
         fecha_creacion: Timestamp.now(),
         fecha_actualizacion: Timestamp.now(),
       };
@@ -2226,9 +2280,12 @@ export class FirestoreFootballService {
         .doc(standingsId)
         .set(standing, { merge: true });
 
-      // console.log(`✅ Saved standings to Firestore for league ${leagueId}`);
+      console.log(
+        `✅ Saved standings to Firestore for league ${leagueId}, season ${season}, groups: ${allStandings.length}`
+      );
     } catch (error) {
-      // console.error("Error saving standings to Firestore:", error);
+      console.error("❌ Error saving standings to Firestore:", error);
+      throw error; // Re-lanzar el error para que se vea en los logs
     }
   }
 

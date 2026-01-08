@@ -23,6 +23,7 @@ interface Standing {
     for: number;
     against: number;
   };
+  group: string;
   form: string;
 }
 
@@ -38,10 +39,12 @@ export default function LeaguePage() {
   const params = useParams();
   const leagueId = params.id as string;
 
+  const [allStandings, setAllStandings] = useState<Standing[][]>([]);
   const [standings, setStandings] = useState<Standing[]>([]);
   const [leagueInfo, setLeagueInfo] = useState<LeagueInfo | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [selectedGroup, setSelectedGroup] = useState<number>(0);
 
   useEffect(() => {
     const fetchLeagueData = async () => {
@@ -53,7 +56,12 @@ export default function LeaguePage() {
           throw new Error("Error al cargar los datos de la liga");
         }
 
-        setStandings(data.standings || []);
+        console.log(data);
+
+        // data.standings es un arreglo de arreglos
+        setAllStandings(data.standings || []);
+        // Por defecto, mostrar el primer grupo
+        setStandings(data.standings[0] || []);
         setLeagueInfo(data.league || null);
       } catch (err) {
         setError(err instanceof Error ? err.message : "Error desconocido");
@@ -66,6 +74,13 @@ export default function LeaguePage() {
       fetchLeagueData();
     }
   }, [leagueId]);
+
+  // Cuando cambia el grupo seleccionado, actualizar la tabla
+  useEffect(() => {
+    if (allStandings.length > 0 && allStandings[selectedGroup]) {
+      setStandings(allStandings[selectedGroup]);
+    }
+  }, [selectedGroup, allStandings]);
 
   if (loading) {
     return (
@@ -173,137 +188,44 @@ export default function LeaguePage() {
           </div>
         </div>
 
+        {/* Tabs para seleccionar grupo */}
+        {allStandings.length > 1 && (
+          <div className="mb-3 overflow-hidden rounded-xl border border-[#2a2e39] bg-[#181c23]">
+            <div className="flex overflow-x-auto">
+              {allStandings.map((group, index) => {
+                const groupName =
+                  group[0]?.group || `Grupo ${String.fromCharCode(65 + index)}`;
+                return (
+                  <button
+                    key={index}
+                    onClick={() => setSelectedGroup(index)}
+                    className={`flex-1 cursor-pointer border-b-2 px-4 py-3 text-sm font-medium whitespace-nowrap transition-colors ${
+                      selectedGroup === index
+                        ? "border-blue-500 bg-[#0f1419] text-white"
+                        : "border-transparent text-white/60 hover:bg-[#1f2329] hover:text-white"
+                    }`}
+                  >
+                    {groupName}
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+        )}
+
         {/* Standings Table */}
         <div className="overflow-hidden rounded-xl border border-[#2a2e39] bg-[#181c23]">
           <div className="border-b border-[#2a2e39] bg-[#0f1419] px-3 py-2">
             <h2 className="text-sm font-bold text-white">
               Tabla de Posiciones
+              {allStandings.length > 1 &&
+                standings[0]?.group &&
+                ` - ${standings[0].group}`}
             </h2>
           </div>
 
-          {/* Mobile Cards View */}
-          <div className="block md:hidden">
-            {standings.map((team, index) => {
-              const isChampionsLeague = index < 4;
-              const isEuropaLeague = index >= 4 && index < 6;
-              const isRelegation = index >= standings.length - 3;
-
-              return (
-                <div
-                  key={team.team.id}
-                  className={`border-b border-[#2a2e39] p-2 last:border-b-0 ${
-                    isChampionsLeague
-                      ? "border-l-4 border-l-blue-500"
-                      : isEuropaLeague
-                        ? "border-l-4 border-l-orange-500"
-                        : isRelegation
-                          ? "border-l-4 border-l-red-500"
-                          : ""
-                  }`}
-                >
-                  <div className="mb-1 flex items-center justify-between">
-                    <div className="flex items-center gap-2">
-                      <span
-                        className={`min-w-[20px] text-center text-sm font-bold ${
-                          isChampionsLeague
-                            ? "text-blue-400"
-                            : isEuropaLeague
-                              ? "text-orange-400"
-                              : isRelegation
-                                ? "text-red-400"
-                                : "text-white"
-                        }`}
-                      >
-                        {team.rank}
-                      </span>
-                      <Image
-                        src={team.team.logo}
-                        alt={team.team.name}
-                        width={18}
-                        height={18}
-                        className="flex-shrink-0 rounded-full bg-white"
-                      />
-                      <span className="truncate text-xs font-medium text-white">
-                        {team.team.name}
-                      </span>
-                    </div>
-                    <div className="text-right">
-                      <span className="text-sm font-bold text-white">
-                        {team.points}
-                      </span>
-                      <span className="block text-xs text-white/60">pts</span>
-                    </div>
-                  </div>
-
-                  <div className="grid grid-cols-5 gap-1 text-xs">
-                    <div className="text-center">
-                      <span className="block text-xs text-white/60">J</span>
-                      <span className="text-xs font-semibold text-white">
-                        {team.played}
-                      </span>
-                    </div>
-                    <div className="text-center">
-                      <span className="block text-xs text-white/60">G</span>
-                      <span className="text-xs font-semibold text-green-400">
-                        {team.win}
-                      </span>
-                    </div>
-                    <div className="text-center">
-                      <span className="block text-xs text-white/60">E</span>
-                      <span className="text-xs font-semibold text-yellow-400">
-                        {team.draw}
-                      </span>
-                    </div>
-                    <div className="text-center">
-                      <span className="block text-xs text-white/60">P</span>
-                      <span className="text-xs font-semibold text-red-400">
-                        {team.lose}
-                      </span>
-                    </div>
-                    <div className="text-center">
-                      <span className="block text-xs text-white/60">Dif</span>
-                      <span
-                        className={`text-xs font-semibold ${
-                          calculateGoalDifference(team) > 0
-                            ? "text-green-400"
-                            : calculateGoalDifference(team) < 0
-                              ? "text-red-400"
-                              : "text-white/80"
-                        }`}
-                      >
-                        {calculateGoalDifference(team) > 0 ? "+" : ""}
-                        {calculateGoalDifference(team)}
-                      </span>
-                    </div>
-                  </div>
-
-                  {/* Form indicator */}
-                  <div className="mt-1 flex justify-center gap-1">
-                    {team.form
-                      ?.split("")
-                      .slice(-5)
-                      .map((result, i) => (
-                        <div
-                          key={i}
-                          className={`h-1.5 w-1.5 rounded-full ${
-                            result === "W"
-                              ? "bg-green-500"
-                              : result === "D"
-                                ? "bg-yellow-500"
-                                : result === "L"
-                                  ? "bg-red-500"
-                                  : "bg-gray-500"
-                          }`}
-                        />
-                      ))}
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-
           {/* Desktop Table View */}
-          <div className="hidden overflow-x-auto md:block">
+          <div className="block overflow-x-auto">
             <table className="w-full">
               <thead>
                 <tr className="bg-[#0f1419] text-xs text-white/70">

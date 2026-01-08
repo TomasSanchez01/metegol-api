@@ -28,7 +28,7 @@ export default function LeagueSection({
     <div className="overflow-hidden rounded-xl border border-[#2a2e39] bg-[#181c23]">
       {/* League Header */}
       <div
-        className={`relative px-4 py-3 ${!isArgentineLeague ? "bg-gradient-to-r from-[#1e3a8a] via-[#2563eb] to-[#1e3a8a]" : ""}`}
+        className={`relative px-2 py-3 ${!isArgentineLeague ? "bg-gradient-to-r from-[#1e3a8a] via-[#2563eb] to-[#1e3a8a]" : ""}`}
       >
         {isArgentineLeague && (
           <Image

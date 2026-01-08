@@ -213,6 +213,15 @@ export interface PosicionStanding {
   };
   diferencia_goles: number;
   forma?: string; // Ej: "WWWWW" (últimos 5 partidos)
+  grupo?: string; // Ej: "Group A", "Group B" (para competiciones con grupos)
+}
+
+/**
+ * Interface para un grupo de posiciones en la tabla
+ */
+export interface GrupoPosiciones {
+  nombre: string; // Nombre del grupo: "Group A", "Group B", etc.
+  posiciones: PosicionStanding[];
 }
 
 /**
@@ -223,7 +232,7 @@ export interface Standing {
   ligaId: string; // Referencia a ligas/{ligaId}
   temporada: string; // Ej: "2024"
   fecha_actualizacion_datos: Timestamp; // Fecha de actualización de los datos de la API
-  posiciones: PosicionStanding[];
+  grupos: GrupoPosiciones[]; // Array de grupos, cada uno con su nombre y posiciones
   fecha_creacion: Timestamp;
   fecha_actualizacion: Timestamp;
 }

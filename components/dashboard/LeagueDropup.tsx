@@ -19,7 +19,6 @@ export default function LeagueDropup({
   leagues,
 }: LeagueDropupProps) {
   const [isOpen, setIsOpen] = useState(false);
-
   // Filtrar ligas por país seleccionado
   const filteredLeagues = useMemo(() => {
     if (!leagues || !Array.isArray(leagues)) return [];
@@ -81,7 +80,7 @@ export default function LeagueDropup({
       {/* Botón principal */}
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className={`group relative flex w-full items-center justify-between rounded-2xl border px-4 py-3 text-sm font-medium transition-all duration-300 ${
+        className={`group relative flex w-full items-center justify-between rounded-2xl border px-1.5 py-2 text-sm font-medium transition-all duration-300 lg:px-4 lg:py-3 ${
           hasActiveFilter
             ? "border-emerald-400 bg-gradient-to-r from-emerald-500/20 to-teal-400/20 text-white shadow-lg"
             : hasCountrySelected && !hasLeaguesAvailable
@@ -89,7 +88,7 @@ export default function LeagueDropup({
               : "border-white/30 bg-gradient-to-br from-gray-800/80 to-gray-700/70 text-white/90 hover:border-white/50 hover:bg-gradient-to-br hover:from-gray-700/90 hover:to-gray-600/80"
         }`}
       >
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-1.5 lg:gap-3">
           <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-white/10">
             <Trophy className="h-4 w-4" />
           </div>

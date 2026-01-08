@@ -11,6 +11,7 @@ import { FootballApi } from "@/lib/footballApi";
 import { format } from "date-fns";
 import { STATIC_LEAGUES } from "@/lib/leagues-data";
 import GiftBanner from "./GiftBanner";
+import { ExtraInfoToggle } from "./ExtraInfoToggle";
 
 interface Props {
   initialMatches?: Match[];
@@ -225,11 +226,13 @@ export default function MainDashboard({ initialMatches = [] }: Props) {
           searchTerm={searchTerm}
           onSearchTermChange={setSearchTerm}
         />
-
-        <DateSelector
-          selectedDate={selectedDate}
-          onDateChange={setSelectedDate}
-        />
+        <div className="grid grid-cols-[130px_2fr_2fr_2fr] gap-1.5 px-2 py-1.5">
+          <ExtraInfoToggle />
+          <DateSelector
+            selectedDate={selectedDate}
+            onDateChange={setSelectedDate}
+          />
+        </div>
         <GiftBanner />
       </div>
 
@@ -283,7 +286,7 @@ export default function MainDashboard({ initialMatches = [] }: Props) {
 
       {/* Fixed bottom navigation - Dos dropups separados */}
       <div className="flex-shrink-0 px-2 pb-2">
-        <div className="grid grid-cols-2 gap-3">
+        <div className="grid grid-cols-2 gap-1.5 lg:gap-3">
           {/* Dropup de Países */}
           <CountryDropup
             countries={COUNTRIES}

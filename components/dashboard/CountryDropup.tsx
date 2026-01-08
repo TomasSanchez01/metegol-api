@@ -21,7 +21,6 @@ export default function CountryDropup({
   countries,
 }: CountryDropupProps) {
   const [isOpen, setIsOpen] = useState(false);
-
   const clearFilter = () => {
     onCountryChange(null);
   };
@@ -41,13 +40,13 @@ export default function CountryDropup({
       {/* Botón principal */}
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className={`group relative flex w-full items-center justify-between rounded-2xl border bg-red-500 px-4 py-3 text-sm font-medium transition-all duration-300 ${
+        className={`group relative flex w-full items-center justify-between rounded-2xl border bg-red-500 px-1.5 py-2 text-sm font-medium transition-all duration-300 lg:px-4 lg:py-3 ${
           hasActiveFilter
             ? "border-blue-400 bg-gradient-to-r from-blue-500/20 to-blue-600/20 text-white shadow-lg"
             : "border-white/30 bg-gradient-to-br from-gray-800/80 to-gray-700/70 text-white/90 hover:border-white/50 hover:bg-gradient-to-br hover:from-gray-700/90 hover:to-gray-600/80"
         }`}
       >
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-1 lg:gap-3">
           <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-white/10">
             <Globe className="h-4 w-4" />
           </div>
