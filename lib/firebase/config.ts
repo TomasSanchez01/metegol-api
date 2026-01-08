@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 // Firebase configuration for the app
 import { initializeApp } from "firebase/app";
 import { getFirestore } from "firebase/firestore";

@@ -1,12 +1,11 @@
 #!/usr/bin/env node
+/* eslint-disable @typescript-eslint/no-require-imports */
 
 /**
  * Script para poblar Firebase con datos de TODAS las ligas disponibles
  * Incluye todas las ligas del sistema con prioridades
  * Uso: node scripts/populate-all-leagues.js
  */
-
-const https = require("https");
 
 // Configuración
 const BASE_URL = "http://localhost:3006";
@@ -115,9 +114,6 @@ const ALL_LEAGUES = [
 function makeRequest(url) {
   return new Promise((resolve, reject) => {
     // Log the outgoing URL for easier debugging
-    try {
-      console.log(`📡 makeRequest -> ${url}`);
-    } catch (e) {}
     const urlObj = new URL(url);
     const options = {
       hostname: urlObj.hostname,

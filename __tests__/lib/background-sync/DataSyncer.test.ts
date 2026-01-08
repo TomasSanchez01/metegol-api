@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 /**
  * Tests para DataSyncer actualizado
  */
@@ -291,7 +292,6 @@ describe("DataSyncer", () => {
   describe("clearQueue", () => {
     it("debe limpiar la cola de trabajos", () => {
       // Primero agregar algunos jobs a la cola
-      const initialStats = syncer.getStats();
 
       // Limpiar la cola
       syncer.clearQueue();

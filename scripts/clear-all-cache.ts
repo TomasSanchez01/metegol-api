@@ -27,7 +27,6 @@ import dotenv from "dotenv";
 dotenv.config({ path: ".env.local" });
 
 import { adminDb } from "@/lib/firebase/config";
-import { Timestamp } from "firebase-admin/firestore";
 import type { Partido } from "@/types/futbol";
 
 const args = process.argv.slice(2);
@@ -71,7 +70,7 @@ function isExpiredCache(doc: FirebaseFirestore.DocumentData): boolean {
     const ttl = typeof doc.ttl === "number" ? doc.ttl : Number(doc.ttl);
     if (!ts || !ttl) return false;
     return Date.now() > ts + ttl;
-  } catch (e) {
+  } catch {
     return false;
   }
 }

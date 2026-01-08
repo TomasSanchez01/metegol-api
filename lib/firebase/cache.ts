@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 // Simplified Firebase cache service
 import { adminDb } from "./config";
 import type { Match } from "@/types/match";

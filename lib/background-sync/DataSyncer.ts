@@ -270,7 +270,6 @@ export class DataSyncer {
 
     // Solo crear jobs de enriquecimiento para matches que realmente lo necesiten
     // y que no tengan ya un job de fixtures en la cola
-    let enrichmentJobsCreated = 0;
     for (const leagueId of this.defaultLeagues) {
       const fixtureJobKey = `${date}_${leagueId}`;
 
@@ -318,7 +317,6 @@ export class DataSyncer {
                 createdAt: Date.now(),
                 metadata: { match, action: "enrich" },
               });
-              enrichmentJobsCreated++;
               // Actualizar totalJobs cuando se agregan nuevos jobs
               this.stats.totalJobs += 1;
               // Actualizar totalJobs cuando se agregan nuevos jobs
@@ -330,10 +328,10 @@ export class DataSyncer {
           }
         }
       } catch (error) {
-        // console.error(
-        //   `Error queuing detailed data for league ${leagueId}:`,
-        //   error
-        // );
+        console.error(
+          `Error queuing detailed data for league ${leagueId}:`,
+          error
+        );
       }
     }
 
@@ -400,10 +398,10 @@ export class DataSyncer {
           // );
         }
       } catch (error) {
-        // console.error(
-        //   `Error queuing live matches for league ${leagueId}:`,
-        //   error
-        // );
+        console.error(
+          `Error queuing live matches for league ${leagueId}:`,
+          error
+        );
       }
     }
   }
@@ -472,9 +470,9 @@ export class DataSyncer {
       this.updateStats();
 
       const totalTime = Date.now() - startTime;
-      // console.log(
-      //   `✅ SYNC: Queue processing complete (${jobsProcessed}/${pendingJobs.length} successful) in ${totalTime}ms`
-      // );
+      console.log(
+        `✅ SYNC: Queue processing complete (${jobsProcessed}/${pendingJobs.length} successful) in ${totalTime}ms`
+      );
     } finally {
       this.isRunning = false;
       // Actualizar lastSyncTime cuando se completa el procesamiento (incluso si hay errores)
@@ -563,9 +561,9 @@ export class DataSyncer {
       this.stats.completedJobs = (this.stats.completedJobs || 0) + 1;
 
       const duration = job.completedAt - startTime;
-      // console.log(
-      //   `✅ SYNC JOB: ${job.id} completed in ${duration}ms (${matches.length} matches)`
-      // );
+      console.log(
+        `✅ SYNC JOB: ${job.id} completed in ${duration}ms (${matches.length} matches)`
+      );
     } catch (error) {
       job.status = "failed";
       job.error = error instanceof Error ? error.message : "Unknown error";
@@ -674,6 +672,6 @@ export class DataSyncer {
       job => job.status === "pending"
     ).length;
     this.syncQueue = this.syncQueue.filter(job => job.status === "running");
-    // console.log(`🗑️ SYNC: Cleared ${pendingCount} pending jobs`);
+    console.log(`🗑️ SYNC: Cleared ${pendingCount} pending jobs`);
   }
 }

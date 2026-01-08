@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 // Admin dashboard con estadísticas de Firestore
 import { NextResponse } from "next/server";
 import { adminDb } from "@/lib/firebase/config";

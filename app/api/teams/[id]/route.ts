@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
 import { FirestoreFootballService } from "@/lib/firestore-football-service";
-import { Match } from "@/types/match";
 
 // Global instance to avoid Firebase reinitialization
 let globalFirestoreService: FirestoreFootballService | null = null;
@@ -64,7 +63,6 @@ export async function GET(
     } else {
       // Si hay partidos en Firestore, enriquecer con detalles si faltan
       // Solo para los primeros 10 partidos más recientes para mejorar rendimiento
-      const now = new Date();
       const sortedMatches = allMatches.sort((a, b) => {
         const dateA = new Date(a.fixture.date);
         const dateB = new Date(b.fixture.date);

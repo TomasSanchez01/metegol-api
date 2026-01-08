@@ -55,7 +55,6 @@ async function deleteEmptyQueries() {
 
   // If dry run, just count and exit
   let totalDeleted = 0;
-  let processed = 0;
   let shouldContinue = true;
 
   if (DRY_RUN) {
@@ -65,7 +64,6 @@ async function deleteEmptyQueries() {
     while (shouldContinue) {
       let q = colRef.limit(BATCH_SIZE);
       if (lastDoc) q = q.startAfter(lastDoc);
-      // eslint-disable-next-line no-await-in-loop
       const snap = await q.get();
       if (snap.empty) break;
       total += snap.size;
@@ -91,8 +89,7 @@ async function deleteEmptyQueries() {
 
   // Main loop: delete in batches until none left or limit reached
   while (shouldContinue) {
-    let q = colRef.limit(BATCH_SIZE);
-    // eslint-disable-next-line no-await-in-loop
+    const q = colRef.limit(BATCH_SIZE);
     const snap = await q.get();
     if (snap.empty) {
       shouldContinue = false;
@@ -104,12 +101,10 @@ async function deleteEmptyQueries() {
       batch.delete(doc.ref);
     }
 
-    // eslint-disable-next-line no-await-in-loop
     await batch.commit();
 
     const deletedNow = snap.size;
     totalDeleted += deletedNow;
-    processed += deletedNow;
 
     console.log(
       `🗑️  Borrados ${deletedNow} documentos (total borrados: ${totalDeleted})`
@@ -121,7 +116,6 @@ async function deleteEmptyQueries() {
     }
 
     // small delay to avoid throttling
-    // eslint-disable-next-line no-await-in-loop
     await new Promise(r => setTimeout(r, 200));
   }
 

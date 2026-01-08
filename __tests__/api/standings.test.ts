@@ -40,7 +40,6 @@ describe("GET /api/standings", () => {
       "http://localhost:3000/api/standings?id=128&season=2024"
     );
     const response = await GET(request);
-    const data = await response.json();
 
     // Puede ser 200 (con datos) o 404 (sin datos)
     expect([200, 404]).toContain(response.status);

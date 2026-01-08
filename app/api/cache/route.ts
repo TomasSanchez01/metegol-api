@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { NextRequest, NextResponse } from "next/server";
 import { adminDb } from "@/lib/firebase/config";
 import { Timestamp } from "firebase-admin/firestore";
@@ -41,7 +42,7 @@ export async function GET(request: NextRequest) {
             stats[collectionName] = {
               totalEntries: count,
             };
-          } catch (error) {
+          } catch {
             // Si count() falla, intentar con get() como fallback
             try {
               const snapshot = await adminDb

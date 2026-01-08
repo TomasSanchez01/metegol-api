@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { apiCall } from "@/lib/utils";
 import type {
   Match,
@@ -98,7 +99,7 @@ export class FootballApi {
       const result = await response.json();
       return result.success ? result.availability : null;
     } catch (error) {
-      // console.error("Error checking data availability:", error);
+      console.error("Error checking data availability:", error);
       return null;
     }
   }
@@ -126,7 +127,7 @@ export class FootballApi {
       const result = await response.json();
       return result.success ? result.stats : null;
     } catch (error) {
-      // console.error("Error in preload:", error);
+      console.error("Error in preload:", error);
       return null;
     }
   }
@@ -142,7 +143,7 @@ export class FootballApi {
       const result = await response.json();
       return result.success ? result.status : null;
     } catch (error) {
-      // console.error("Error getting preload status:", error);
+      console.error("Error getting preload status:", error);
       return null;
     }
   }
@@ -155,7 +156,7 @@ export class FootballApi {
       });
       return data;
     } catch (error) {
-      // console.error("Error fetching standings:", error);
+      console.error("Error fetching standings:", error);
       return null;
     }
   }
@@ -287,10 +288,10 @@ export class FootballApiServer {
 
       return { home, away };
     } catch (error) {
-      // console.error(
-      //   `Error fetching team stats for match ${match.fixture.id}:`,
-      //   error
-      // );
+      console.error(
+        `Error fetching team stats for match ${match.fixture.id}:`,
+        error
+      );
       return { home: [], away: [] };
     }
   }
@@ -310,7 +311,7 @@ export class FootballApiServer {
 
       return { home, away };
     } catch (error) {
-      // console.error(`Error fetching lineups for match ${fixtureId}:`, error);
+      console.error(`Error fetching lineups for match ${fixtureId}:`, error);
       return { home: null, away: null };
     }
   }
@@ -371,10 +372,10 @@ export class FootballApiServer {
 
       return { home, away };
     } catch (error) {
-      // console.error(
-      //   `Error fetching events for match ${match.fixture.id}:`,
-      //   error
-      // );
+      console.error(
+        `Error fetching events for match ${match.fixture.id}:`,
+        error
+      );
       return { home: [], away: [] };
     }
   }
@@ -403,7 +404,7 @@ export class FootballApiServer {
           new Date(a.fixture.date).getTime()
       );
     } catch (error) {
-      // console.error(`Error fetching all matches for team ${teamId}:`, error);
+      console.error(`Error fetching all matches for team ${teamId}:`, error);
       return [];
     }
   }
@@ -469,7 +470,7 @@ export class FootballApiServer {
         })) ?? [];
       return teamData.map(({ team }) => team);
     } catch (error) {
-      // console.error(`Error fetching teams for league ${leagueId}:`, error);
+      console.error(`Error fetching teams for league ${leagueId}:`, error);
       return [];
     }
   }
@@ -545,7 +546,7 @@ export class FootballApiServer {
       });
       return standings ?? [];
     } catch (error) {
-      // console.error(`Error fetching standings for league ${leagueId}:`, error);
+      console.error(`Error fetching standings for league ${leagueId}:`, error);
       return [];
     }
   }
@@ -565,7 +566,7 @@ export class FootballApiServer {
       >("/leagues", {});
       return leagues ?? [];
     } catch (error) {
-      // console.error("Error fetching leagues:", error);
+      console.error("Error fetching leagues:", error);
       return [];
     }
   }

@@ -21,7 +21,7 @@ import { adminDb } from "@/lib/firebase/config";
 import { FootballApiServer } from "@/lib/footballApi";
 import { FirestoreFootballService } from "@/lib/firestore-football-service";
 import { STATIC_LEAGUES } from "@/lib/leagues-data";
-import type { Liga, Equipo, Formacion } from "@/types/futbol";
+import type { Liga, Formacion } from "@/types/futbol";
 import type { Match, LineupTeam } from "@/types/match";
 import { Timestamp } from "firebase-admin/firestore";
 
@@ -53,8 +53,6 @@ async function populateLeagues() {
   console.log("🌍 Poblando ligas...\n");
   const now = Timestamp.now();
   const currentYear = new Date().getFullYear().toString();
-
-  const firestoreService = new FirestoreFootballService();
 
   for (const league of STATIC_LEAGUES) {
     try {
@@ -172,8 +170,6 @@ async function populateFormations() {
   }
 
   const externalApi = new FootballApiServer(apiKey);
-  const firestoreService = new FirestoreFootballService();
-  const currentSeason = new Date().getFullYear();
 
   // Obtener partidos recientes de las ligas principales
   const today = new Date();

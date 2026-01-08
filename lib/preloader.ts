@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 // Smart Preloader - Simplified placeholder for cache preload operations
 import { FastFootballApi } from "./client-api/FastFootballApi";
 

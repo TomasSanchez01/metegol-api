@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 // Fast Football API - Reads only from Firebase (no external API calls)
 import { FirebaseCache } from "../firebase/cache";
 import { format, subDays } from "date-fns";

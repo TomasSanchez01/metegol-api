@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-require-imports */
 // Setup for Jest tests
 // Set up environment variables for tests
 process.env.NODE_ENV = "test";
@@ -131,10 +132,10 @@ jest.mock("@/lib/firebase/config", () => {
   // Crear un mock más completo que soporte encadenamiento de métodos
   const createMockQuery = () => {
     const query = {
-      where: jest.fn(function (field, operator, value) {
+      where: jest.fn(function () {
         return this; // Retornar el mismo objeto para encadenamiento
       }),
-      limit: jest.fn(function (limit) {
+      limit: jest.fn(function () {
         return this; // Retornar el mismo objeto para encadenamiento
       }),
       get: jest.fn().mockResolvedValue({
@@ -148,7 +149,7 @@ jest.mock("@/lib/firebase/config", () => {
 
   const createMockCollection = () => {
     const collection = {
-      where: jest.fn(function (field, operator, value) {
+      where: jest.fn(function () {
         // Cuando se llama where en una colección, devolver un query
         return createMockQuery();
       }),
@@ -168,7 +169,7 @@ jest.mock("@/lib/firebase/config", () => {
         size: 0,
       }),
       // También permitir limit directamente en la colección
-      limit: jest.fn(function (limit) {
+      limit: jest.fn(function () {
         return createMockQuery();
       }),
     };

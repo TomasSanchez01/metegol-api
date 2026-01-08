@@ -150,6 +150,7 @@ export class MassiveDataPopulator {
     this.syncer = new DataSyncer(apiKey);
     this.firestoreService = new FirestoreFootballService();
     // Inicializar API externa en FirestoreFootballService
+    // eslint-disable-next-line @typescript-eslint/no-require-imports
     const { FootballApiServer } = require("../footballApi");
     const api = new FootballApiServer(apiKey);
     this.firestoreService.setExternalApi(api);

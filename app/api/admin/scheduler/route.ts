@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { NextRequest, NextResponse } from "next/server";
 import { AutoScheduler } from "@/lib/background-sync/AutoScheduler";
 import { withAdminAuth } from "@/lib/middleware/auth";

@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 /**
  * Script para migrar datos de api_cache a las nuevas colecciones estructuradas
  *
@@ -502,6 +503,7 @@ async function migrateStanding(data: any): Promise<void> {
       posiciones: posiciones || [],
       fecha_creacion: now,
       fecha_actualizacion: now,
+      grupos: [],
     };
 
     await adminDb

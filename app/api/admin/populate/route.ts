@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { NextRequest, NextResponse } from "next/server";
 import { MassiveDataPopulator } from "@/lib/background-sync/MassiveDataPopulator";
 import { withAdminAuth } from "@/lib/middleware/auth";

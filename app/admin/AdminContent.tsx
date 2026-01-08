@@ -1,7 +1,6 @@
 "use client";
 
 import { useState, useEffect, useCallback, useRef } from "react";
-import AdminLayout from "@/components/admin/AdminLayout";
 
 interface SyncStats {
   totalJobs: number;

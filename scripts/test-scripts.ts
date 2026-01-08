@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 /**
  * Script de prueba para validar que todos los scripts tienen la sintaxis correcta
  * y que los tipos están bien definidos.
@@ -26,7 +27,7 @@ async function testScript(scriptPath: string): Promise<TestResult> {
 
   try {
     // Verificar sintaxis con tsx --check
-    const { stdout, stderr } = await execAsync(`npx tsx --check ${scriptPath}`);
+    const { stderr } = await execAsync(`npx tsx --check ${scriptPath}`);
 
     if (stderr && stderr.includes("error")) {
       result.error = stderr;

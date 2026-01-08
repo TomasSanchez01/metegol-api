@@ -3,8 +3,6 @@
  * Uso: node scripts/preload-future-matches.js [días] [ligas]
  */
 
-const { format, addDays } = require("date-fns");
-
 async function preloadMatches() {
   const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000";
 

@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 /**
  * Servicio para consultar datos de fútbol desde Firestore
  * Consulta primero las colecciones estructuradas, si no hay datos, consulta la API externa
@@ -9,11 +10,9 @@ import type { Match, League, Team } from "@/types/match";
 import type {
   Liga,
   Equipo,
-  Jugador,
   Partido,
   Standing,
   Formacion,
-  PosicionStanding,
   GrupoPosiciones,
 } from "@/types/futbol";
 import { Timestamp } from "firebase-admin/firestore";
@@ -178,10 +177,10 @@ export class FirestoreFootballService {
       await this.saveMatchesToFirestore(enrichedMatches);
       return enrichedMatches;
     } catch (error) {
-      // console.error(
-      //   `Error refreshing fixtures for league ${leagueId} (${from} - ${to}):`,
-      //   error
-      // );
+      console.error(
+        `Error refreshing fixtures for league ${leagueId} (${from} - ${to}):`,
+        error
+      );
       return null;
     }
   }
@@ -370,9 +369,9 @@ export class FirestoreFootballService {
               // Si no había partidos y fue consultado recientemente, no consultar API
               if (!cached.hasMatches && age < maxAgeMs) {
                 const hoursSinceCheck = age / (1000 * 60 * 60);
-                // console.log(
-                //   `💾 MEMORY CACHE: No matches found for league ${leagueId} on ${from} (checked ${hoursSinceCheck.toFixed(1)}h ago). Skipping API call.`
-                // );
+                console.log(
+                  `💾 MEMORY CACHE: No matches found for league ${leagueId} on ${from} (checked ${hoursSinceCheck.toFixed(1)}h ago). Skipping API call.`
+                );
                 return [];
               }
             }
@@ -533,9 +532,9 @@ export class FirestoreFootballService {
         // );
       } catch (indexError: any) {
         // Si falla por índice, usar fallback: consultar todos los partidos y filtrar en memoria
-        // console.log(
-        //   `⚠️  Index query failed (${indexError?.code || indexError?.message}), using fallback: fetching all partidos and filtering in memory...`
-        // );
+        console.log(
+          `⚠️  Index query failed (${indexError?.code || indexError?.message}), using fallback: fetching all partidos and filtering in memory...`
+        );
 
         // Fallback: obtener todos los partidos (limitado a 1000 para evitar problemas de memoria)
         const allPartidosQuery = adminDb.collection("partidos").limit(1000);
@@ -588,13 +587,13 @@ export class FirestoreFootballService {
             const partidoDate = partido.fecha.toDate();
             return `${partido.id} (league ${partido.ligaId}, date: ${partidoDate.toISOString()})`;
           });
-          // console.log(
-          //   `📋 Found partido IDs in Firestore: ${partidoIds.join(", ")}${
-          //     filteredDocs.length > 5
-          //       ? ` ... and ${filteredDocs.length - 5} more`
-          //       : ""
-          //   }`
-          // );
+          console.log(
+            `📋 Found partido IDs in Firestore: ${partidoIds.join(", ")}${
+              filteredDocs.length > 5
+                ? ` ... and ${filteredDocs.length - 5} more`
+                : ""
+            }`
+          );
         }
 
         const partidosFiltrados = filteredDocs.filter(doc => {
@@ -620,7 +619,7 @@ export class FirestoreFootballService {
         }
 
         // Agrupar matches por liga
-        for (const { partido, match } of partidosConMatches) {
+        for (const { match } of partidosConMatches) {
           const ligaId = match.league.id;
           if (staleLeagueIds.has(ligaId)) {
             continue;
@@ -730,9 +729,9 @@ export class FirestoreFootballService {
                 // Si no había partidos y fue consultado recientemente, no consultar API
                 if (!cached.hasMatches && age < maxAgeMs) {
                   const hoursSinceCheck = age / (1000 * 60 * 60);
-                  // console.log(
-                  //   `💾 MEMORY CACHE: No matches found for league ${leagueId} on ${from} (checked ${hoursSinceCheck.toFixed(1)}h ago). Skipping API call.`
-                  // );
+                  console.log(
+                    `💾 MEMORY CACHE: No matches found for league ${leagueId} on ${from} (checked ${hoursSinceCheck.toFixed(1)}h ago). Skipping API call.`
+                  );
                   return null; // No consultar esta liga
                 }
               }
@@ -826,10 +825,10 @@ export class FirestoreFootballService {
 
                 return matches;
               } catch (error) {
-                // console.error(
-                //   `Error fetching matches for league ${leagueId}:`,
-                //   error
-                // );
+                console.error(
+                  `Error fetching matches for league ${leagueId}:`,
+                  error
+                );
                 return [];
               }
             })
@@ -1137,7 +1136,7 @@ export class FirestoreFootballService {
         logo: team.logo,
       }));
     } catch (error) {
-      // console.error("Error getting teams:", error);
+      console.error("Error getting teams:", error);
       return [];
     }
   }
@@ -1176,7 +1175,7 @@ export class FirestoreFootballService {
       // Por ahora, retornar null y dejar que el endpoint maneje la API externa
       return null;
     } catch (error) {
-      // console.error("Error getting team:", error);
+      console.error("Error getting team:", error);
       return null;
     }
   }
@@ -1233,12 +1232,12 @@ export class FirestoreFootballService {
 
       // Si no hay datos en Firestore, retornar array vacío
       // El endpoint puede consultar la API externa si es necesario
-      // console.log(
-      //   `⚠️  No matches found in Firestore for team ${teamId}, will fetch from external API`
-      // );
+      console.log(
+        `⚠️  No matches found in Firestore for team ${teamId}, will fetch from external API`
+      );
       return [];
     } catch (error) {
-      // console.error("Error getting team matches:", error);
+      console.error("Error getting team matches:", error);
       return [];
     }
   }
@@ -1298,7 +1297,7 @@ export class FirestoreFootballService {
         country: league.country?.name || country || "",
       }));
     } catch (error) {
-      // console.error("Error getting leagues:", error);
+      console.error("Error getting leagues:", error);
       return [];
     }
   }
@@ -1330,7 +1329,7 @@ export class FirestoreFootballService {
         };
       }
     } catch (error) {
-      // console.error(`Error getting league info for ${partido.ligaId}:`, error);
+      console.error(`Error getting league info for ${partido.ligaId}:`, error);
     }
 
     const match: Match = {
@@ -1479,7 +1478,7 @@ export class FirestoreFootballService {
           })),
         };
       } catch (error) {
-        // console.error(`Error mapping events for match ${partido.id}:`, error);
+        console.error(`Error mapping events for match ${partido.id}:`, error);
       }
     }
 
@@ -1490,7 +1489,7 @@ export class FirestoreFootballService {
         match.lineups = lineups;
       }
     } catch (error) {
-      // console.error(`Error getting lineups for match ${partido.id}:`, error);
+      console.error(`Error getting lineups for match ${partido.id}:`, error);
     }
 
     return match;
@@ -1619,10 +1618,10 @@ export class FirestoreFootballService {
         away: convertFormacionToLineupTeam(formacionVisitante),
       };
     } catch (error) {
-      // console.error(
-      //   `Error getting lineups from formaciones for match ${partidoId}:`,
-      //   error
-      // );
+      console.error(
+        `Error getting lineups from formaciones for match ${partidoId}:`,
+        error
+      );
       return null;
     }
   }
@@ -1720,10 +1719,10 @@ export class FirestoreFootballService {
                     }
                   })
                   .catch(error => {
-                    // console.error(
-                    //   `Error getting stats for match ${match.fixture.id}:`,
-                    //   error
-                    // );
+                    console.error(
+                      `Error getting stats for match ${match.fixture.id}:`,
+                      error
+                    );
                   })
               );
             }
@@ -1741,10 +1740,10 @@ export class FirestoreFootballService {
                     }
                   })
                   .catch(error => {
-                    // console.error(
-                    //   `Error getting events for match ${match.fixture.id}:`,
-                    //   error
-                    // );
+                    console.error(
+                      `Error getting events for match ${match.fixture.id}:`,
+                      error
+                    );
                   })
               );
             }
@@ -1768,18 +1767,18 @@ export class FirestoreFootballService {
                         match,
                         enrichedMatch.lineups
                       ).catch(error => {
-                        // console.error(
-                        //   `Error saving lineups for match ${match.fixture.id}:`,
-                        //   error
-                        // );
+                        console.error(
+                          `Error saving lineups for match ${match.fixture.id}:`,
+                          error
+                        );
                       });
                     }
                   })
                   .catch(error => {
-                    // console.error(
-                    //   `Error getting lineups for match ${match.fixture.id}:`,
-                    //   error
-                    // );
+                    console.error(
+                      `Error getting lineups for match ${match.fixture.id}:`,
+                      error
+                    );
                   })
               );
             }
@@ -1788,7 +1787,7 @@ export class FirestoreFootballService {
             await Promise.all(promises);
             return enrichedMatch;
           } catch (error) {
-            // console.error(`Error enriching match ${match.fixture.id}:`, error);
+            console.error(`Error enriching match ${match.fixture.id}:`, error);
             return match; // Si hay error, retornar el partido sin enriquecer
           }
         })
@@ -1840,7 +1839,7 @@ export class FirestoreFootballService {
         const enriched = await this.enrichMatchesWithDetails([match]);
         enrichedMatches.push(enriched[0] || match);
       } catch (error) {
-        // console.error(`Error enriching match ${match.fixture.id}:`, error);
+        console.error(`Error enriching match ${match.fixture.id}:`, error);
         // Si hay error, agregar el partido sin enriquecer
         enrichedMatches.push(match);
       }
@@ -1986,10 +1985,10 @@ export class FirestoreFootballService {
 
       await batch.commit();
     } catch (error) {
-      // console.error(
-      //   `Error saving lineups to formaciones for match ${match.fixture.id}:`,
-      //   error
-      // );
+      console.error(
+        `Error saving lineups to formaciones for match ${match.fixture.id}:`,
+        error
+      );
     }
   }
 
@@ -2314,7 +2313,7 @@ export class FirestoreFootballService {
       await batch.commit();
       // console.log(`✅ Saved ${teams.length} teams to Firestore`);
     } catch (error) {
-      // console.error("Error saving teams to Firestore:", error);
+      console.error("❌ Error saving teams to Firestore:", error);
     }
   }
 
@@ -2345,7 +2344,7 @@ export class FirestoreFootballService {
       await batch.commit();
       // console.log(`✅ Saved ${leaguesResponse.length} leagues to Firestore`);
     } catch (error) {
-      // console.error("Error saving leagues to Firestore:", error);
+      console.error("Error saving leagues to Firestore:", error);
     }
   }
 }

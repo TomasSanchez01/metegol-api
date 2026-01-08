@@ -1,6 +1,6 @@
-import { NextRequest, NextResponse } from "next/server";
+import { NextResponse } from "next/server";
 
-export async function middleware(request: NextRequest) {
+export async function middleware() {
   // Simple middleware - just pass through all requests
   // Cache logic is now handled directly in the API routes
   return NextResponse.next();

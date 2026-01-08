@@ -56,7 +56,7 @@ function isExpired(doc: FirebaseFirestore.DocumentData) {
     const ttl = typeof doc.ttl === "number" ? doc.ttl : Number(doc.ttl);
     if (!ts || !ttl) return false;
     return Date.now() > ts + ttl;
-  } catch (e) {
+  } catch {
     return false;
   }
 }
@@ -85,7 +85,6 @@ async function clearCache() {
     while (true) {
       let q = colRef.limit(BATCH_SIZE);
       if (lastDoc) q = q.startAfter(lastDoc);
-      // eslint-disable-next-line no-await-in-loop
       const snap = await q.get();
       if (snap.empty) break;
 
@@ -121,7 +120,6 @@ async function clearCache() {
   while (!done) {
     let q = colRef.limit(BATCH_SIZE);
     if (lastDoc) q = q.startAfter(lastDoc);
-    // eslint-disable-next-line no-await-in-loop
     const snap = await q.get();
     if (snap.empty) break;
 
@@ -137,7 +135,6 @@ async function clearCache() {
     }
 
     if (toDelete > 0) {
-      // eslint-disable-next-line no-await-in-loop
       await batch.commit();
       totalDeleted += toDelete;
       console.log(
@@ -158,7 +155,6 @@ async function clearCache() {
     }
 
     // small delay
-    // eslint-disable-next-line no-await-in-loop
     await new Promise(r => setTimeout(r, 200));
   }
 

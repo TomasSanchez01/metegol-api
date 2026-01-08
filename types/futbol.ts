@@ -235,6 +235,7 @@ export interface Standing {
   grupos: GrupoPosiciones[]; // Array de grupos, cada uno con su nombre y posiciones
   fecha_creacion: Timestamp;
   fecha_actualizacion: Timestamp;
+  posiciones?: PosicionStanding[];
 }
 
 /**

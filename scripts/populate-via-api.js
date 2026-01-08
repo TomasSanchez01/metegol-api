@@ -1,12 +1,11 @@
 #!/usr/bin/env node
+/* eslint-disable @typescript-eslint/no-require-imports */
 
 /**
  * Script para poblar Firebase con datos desde hoy hasta los próximos 15 días
  * Usa los endpoints de la API directamente (requiere que el servidor esté corriendo)
  * Uso: node scripts/populate-via-api.js
  */
-
-const https = require("https");
 
 // Configuración
 const BASE_URL = "http://localhost:3006";
@@ -16,9 +15,6 @@ const DEFAULT_LEAGUES = [128, 129, 130, 2, 3, 848, 15];
 function makeRequest(url) {
   return new Promise((resolve, reject) => {
     // Log the outgoing URL for easier debugging
-    try {
-      console.log(`📡 makeRequest -> ${url}`);
-    } catch (e) {}
     const urlObj = new URL(url);
     const options = {
       hostname: urlObj.hostname,

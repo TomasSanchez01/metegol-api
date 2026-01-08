@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+/* eslint-disable @typescript-eslint/no-require-imports */
 
 /**
  * Script para poblar Firebase con datos desde hoy hasta los próximos 15 días
