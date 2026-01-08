@@ -1,6 +1,6 @@
 /**
  * Tipos TypeScript para el esquema de Firestore del proyecto Metegol
- * 
+ *
  * Estos tipos representan las entidades normalizadas almacenadas en Firestore
  * y mantienen compatibilidad con los tipos de la API externa.
  */
@@ -232,11 +232,26 @@ export interface Standing {
  * Tipos de ayuda para crear documentos (sin timestamps)
  */
 export type LigaInput = Omit<Liga, "fecha_creacion" | "fecha_actualizacion">;
-export type EquipoInput = Omit<Equipo, "fecha_creacion" | "fecha_actualizacion">;
-export type JugadorInput = Omit<Jugador, "fecha_creacion" | "fecha_actualizacion">;
-export type FormacionInput = Omit<Formacion, "fecha_creacion" | "fecha_actualizacion">;
-export type PartidoInput = Omit<Partido, "fecha_creacion" | "fecha_actualizacion">;
-export type StandingInput = Omit<Standing, "fecha_creacion" | "fecha_actualizacion">;
+export type EquipoInput = Omit<
+  Equipo,
+  "fecha_creacion" | "fecha_actualizacion"
+>;
+export type JugadorInput = Omit<
+  Jugador,
+  "fecha_creacion" | "fecha_actualizacion"
+>;
+export type FormacionInput = Omit<
+  Formacion,
+  "fecha_creacion" | "fecha_actualizacion"
+>;
+export type PartidoInput = Omit<
+  Partido,
+  "fecha_creacion" | "fecha_actualizacion"
+>;
+export type StandingInput = Omit<
+  Standing,
+  "fecha_creacion" | "fecha_actualizacion"
+>;
 
 /**
  * Tipos de ayuda para actualizar documentos (campos opcionales)
@@ -247,4 +262,3 @@ export type JugadorUpdate = Partial<Omit<Jugador, "id" | "fecha_creacion">>;
 export type FormacionUpdate = Partial<Omit<Formacion, "id" | "fecha_creacion">>;
 export type PartidoUpdate = Partial<Omit<Partido, "id" | "fecha_creacion">>;
 export type StandingUpdate = Partial<Omit<Standing, "id" | "fecha_creacion">>;
-

@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 /**
  * Script para forzar borrar TODA la cache de Firestore
- * 
+ *
  * Este script borra las siguientes colecciones:
  * - api_cache: Cache de respuestas de la API externa
  * - empty_queries: Registros de queries que no devolvieron resultados
@@ -66,7 +66,8 @@ async function confirmPrompt(message: string): Promise<boolean> {
 
 function isExpiredCache(doc: FirebaseFirestore.DocumentData): boolean {
   try {
-    const ts = typeof doc.timestamp === "number" ? doc.timestamp : Number(doc.timestamp);
+    const ts =
+      typeof doc.timestamp === "number" ? doc.timestamp : Number(doc.timestamp);
     const ttl = typeof doc.ttl === "number" ? doc.ttl : Number(doc.ttl);
     if (!ts || !ttl) return false;
     return Date.now() > ts + ttl;
@@ -143,7 +144,9 @@ async function deleteCollection(
     if (toDelete > 0) {
       await batch.commit();
       stats.deleted += toDelete;
-      console.log(`  🗑️  ${collectionName}: Borrados ${toDelete} documentos (total: ${stats.deleted})`);
+      console.log(
+        `  🗑️  ${collectionName}: Borrados ${toDelete} documentos (total: ${stats.deleted})`
+      );
     }
 
     lastDoc = snap.docs[snap.docs.length - 1];
@@ -165,12 +168,16 @@ async function deleteCollection(
 
 async function clearAllCache() {
   if (!adminDb) {
-    console.error("❌ adminDb no está inicializado. Revisa tu configuración de Firebase.");
+    console.error(
+      "❌ adminDb no está inicializado. Revisa tu configuración de Firebase."
+    );
     process.exit(1);
   }
 
   console.log("🔎 Preparando limpieza completa de cache");
-  console.log(`  Modo: ${DELETE_ALL ? "Borrar TODOS los documentos" : "Borrar solo documentos expirados/vacíos"}`);
+  console.log(
+    `  Modo: ${DELETE_ALL ? "Borrar TODOS los documentos" : "Borrar solo documentos expirados/vacíos"}`
+  );
   console.log(`  Batch size: ${BATCH_SIZE}`);
   if (LIMIT) console.log(`  Límite por colección: ${LIMIT}`);
   console.log(`  Incluir partidos: ${INCLUDE_PARTIDOS ? "Sí" : "No"}`);
@@ -194,7 +201,7 @@ async function clearAllCache() {
       name: "partidos",
       shouldDelete: DELETE_ALL
         ? () => true
-        : (doc) => isExpiredMatch(doc as Partido),
+        : doc => isExpiredMatch(doc as Partido),
     });
   }
 
@@ -215,11 +222,11 @@ async function clearAllCache() {
 
   const ok = await confirmPrompt(
     `\n⚠️  ⚠️  ⚠️  ADVERTENCIA ⚠️  ⚠️  ⚠️\n` +
-    `Esto eliminará documentos de las siguientes colecciones:\n` +
-    `  - api_cache\n` +
-    `  - empty_queries\n` +
-    `${INCLUDE_PARTIDOS ? "  - partidos\n" : ""}` +
-    `\n¿Estás seguro de que quieres continuar?`
+      `Esto eliminará documentos de las siguientes colecciones:\n` +
+      `  - api_cache\n` +
+      `  - empty_queries\n` +
+      `${INCLUDE_PARTIDOS ? "  - partidos\n" : ""}` +
+      `\n¿Estás seguro de que quieres continuar?`
   );
 
   if (!ok) {
@@ -235,7 +242,9 @@ async function clearAllCache() {
     console.log(`📦 Procesando colección: ${col.name}`);
     const stats = await deleteCollection(col.name, col.shouldDelete);
     allStats.push(stats);
-    console.log(`✅ ${col.name}: Completado (${stats.deleted} documentos eliminados)\n`);
+    console.log(
+      `✅ ${col.name}: Completado (${stats.deleted} documentos eliminados)\n`
+    );
   }
 
   console.log("\n" + "=".repeat(60));
@@ -254,4 +263,3 @@ clearAllCache().catch(err => {
   console.error("❌ Error durante la limpieza:", err);
   process.exit(1);
 });
-

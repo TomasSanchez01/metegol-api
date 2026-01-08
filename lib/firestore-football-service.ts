@@ -67,7 +67,7 @@ export class FirestoreFootballService {
 
     // Verificar si el TTL está expirado
     const ttlExpired = this.isTimestampExpired(partido.ttl_fixture);
-    
+
     // Si el TTL no está expirado, no es stale
     if (!ttlExpired) {
       return false;
@@ -78,8 +78,9 @@ export class FirestoreFootballService {
     // ya que los datos históricos no cambian
     const matchDate = partido.fecha?.toDate();
     if (matchDate) {
-      const daysSinceMatch = (Date.now() - matchDate.getTime()) / (1000 * 60 * 60 * 24);
-      
+      const daysSinceMatch =
+        (Date.now() - matchDate.getTime()) / (1000 * 60 * 60 * 24);
+
       // Si el partido es muy antiguo (más de 30 días), no refrescar
       // aunque el TTL esté expirado
       if (daysSinceMatch > 30) {
@@ -356,9 +357,13 @@ export class FirestoreFootballService {
             const age = Date.now() - cached.timestamp;
             // Para fechas lejanas (más de 30 días), usar TTL mucho más largo (1 año)
             const queryDate = new Date(from + "T00:00:00.000Z");
-            const daysSinceQuery = (Date.now() - queryDate.getTime()) / (1000 * 60 * 60 * 24);
-            const maxAgeMs = daysSinceQuery > 30 ? 365 * 24 * 60 * 60 * 1000 : 24 * 60 * 60 * 1000; // 1 año para fechas lejanas, 24h para recientes
-            
+            const daysSinceQuery =
+              (Date.now() - queryDate.getTime()) / (1000 * 60 * 60 * 24);
+            const maxAgeMs =
+              daysSinceQuery > 30
+                ? 365 * 24 * 60 * 60 * 1000
+                : 24 * 60 * 60 * 1000; // 1 año para fechas lejanas, 24h para recientes
+
             if (age < this.EMPTY_QUERIES_CACHE_TTL) {
               // Si no había partidos y fue consultado recientemente, no consultar API
               if (!cached.hasMatches && age < maxAgeMs) {
@@ -393,11 +398,15 @@ export class FirestoreFootballService {
             // Para fechas lejanas (más de 30 días), usar TTL mucho más largo (1 año)
             // ya que los datos históricos no cambian
             const queryDate = new Date(from + "T00:00:00.000Z");
-            const daysSinceQuery = (Date.now() - queryDate.getTime()) / (1000 * 60 * 60 * 24);
+            const daysSinceQuery =
+              (Date.now() - queryDate.getTime()) / (1000 * 60 * 60 * 24);
             const maxHoursSinceCheck = daysSinceQuery > 30 ? 365 * 24 : 24; // 1 año para fechas lejanas, 24h para recientes
 
             // Si consultamos hace menos del tiempo máximo y no había partidos, no consultar la API
-            if (hoursSinceCheck < maxHoursSinceCheck && emptyQuery?.has_matches === false) {
+            if (
+              hoursSinceCheck < maxHoursSinceCheck &&
+              emptyQuery?.has_matches === false
+            ) {
               // console.log(
               //   `ℹ️  No matches found for league ${leagueId} on ${from} (checked ${hoursSinceCheck.toFixed(1)}h ago). Skipping API call.`
               // );
@@ -708,9 +717,13 @@ export class FirestoreFootballService {
               const age = Date.now() - cached.timestamp;
               // Para fechas lejanas (más de 30 días), usar TTL mucho más largo (1 año)
               const queryDate = new Date(from + "T00:00:00.000Z");
-              const daysSinceQuery = (Date.now() - queryDate.getTime()) / (1000 * 60 * 60 * 24);
-              const maxAgeMs = daysSinceQuery > 30 ? 365 * 24 * 60 * 60 * 1000 : 24 * 60 * 60 * 1000; // 1 año para fechas lejanas, 24h para recientes
-              
+              const daysSinceQuery =
+                (Date.now() - queryDate.getTime()) / (1000 * 60 * 60 * 24);
+              const maxAgeMs =
+                daysSinceQuery > 30
+                  ? 365 * 24 * 60 * 60 * 1000
+                  : 24 * 60 * 60 * 1000; // 1 año para fechas lejanas, 24h para recientes
+
               if (age < this.EMPTY_QUERIES_CACHE_TTL) {
                 // Si no había partidos y fue consultado recientemente, no consultar API
                 if (!cached.hasMatches && age < maxAgeMs) {
@@ -745,11 +758,15 @@ export class FirestoreFootballService {
               // Para fechas lejanas (más de 30 días), usar TTL mucho más largo (1 año)
               // ya que los datos históricos no cambian
               const queryDate = new Date(from + "T00:00:00.000Z");
-              const daysSinceQuery = (Date.now() - queryDate.getTime()) / (1000 * 60 * 60 * 24);
+              const daysSinceQuery =
+                (Date.now() - queryDate.getTime()) / (1000 * 60 * 60 * 24);
               const maxHoursSinceCheck = daysSinceQuery > 30 ? 365 * 24 : 24; // 1 año para fechas lejanas, 24h para recientes
 
               // Si consultamos hace menos del tiempo máximo y no había partidos, no consultar la API
-              if (hoursSinceCheck < maxHoursSinceCheck && emptyQuery?.has_matches === false) {
+              if (
+                hoursSinceCheck < maxHoursSinceCheck &&
+                emptyQuery?.has_matches === false
+              ) {
                 // console.log(
                 //   `ℹ️  No matches found for league ${leagueId} on ${from} (checked ${hoursSinceCheck.toFixed(1)}h ago). Skipping API call.`
                 // );
@@ -1337,7 +1354,7 @@ export class FirestoreFootballService {
         console.error(
           `Error mapping statistics for match ${partido.id}:`,
           error
-        )
+        );
       }
     } else {
       // Solo mostrar advertencia si el partido debería tener estadísticas (finalizado o en progreso)

@@ -13,12 +13,14 @@ Todos los scripts han sido probados y validados. La sintaxis, estructura y funci
 **Uso**: `npx tsx scripts/checkCollections.ts`
 
 **Funcionalidades**:
+
 - ✅ Lista todas las colecciones en Firestore
 - ✅ Cuenta documentos en cada colección
 - ✅ Manejo de errores mejorado
 - ✅ Verificación de inicialización de Firebase Admin
 
 **Resultados de Prueba**:
+
 - ✅ Sintaxis correcta (verificado con `tsx --check`)
 - ✅ Tipos correctos
 - ✅ Importaciones correctas
@@ -26,6 +28,7 @@ Todos los scripts han sido probados y validados. La sintaxis, estructura y funci
 - ✅ **Ejecutado exitosamente**: Encontró 4 colecciones (api_cache, equipos, jugadores, ligas)
 
 **Colecciones encontradas**:
+
 - `api_cache`: 2,181 documentos
 - `equipos`: 4 documentos
 - `jugadores`: 3 documentos
@@ -40,6 +43,7 @@ Todos los scripts han sido probados y validados. La sintaxis, estructura y funci
 **Uso**: `npx tsx scripts/seedFirebase.ts`
 
 **Funcionalidades**:
+
 - ✅ Crea ligas de ejemplo (Liga Profesional Argentina, Premier League, La Liga)
 - ✅ Crea equipos de ejemplo (River Plate, Boca Juniors, Manchester United, Real Madrid)
 - ✅ Crea jugadores de ejemplo (Lionel Messi, Cristiano Ronaldo, Marcus Rashford)
@@ -48,11 +52,13 @@ Todos los scripts han sido probados y validados. La sintaxis, estructura y funci
 - ✅ Manejo de errores mejorado
 
 **Datos de Ejemplo**:
+
 - 3 ligas
 - 4 equipos
 - 3 jugadores
 
 **Resultados de Prueba**:
+
 - ✅ Sintaxis correcta (verificado con `tsx --check`)
 - ✅ Tipos correctos
 - ✅ Importaciones correctas
@@ -61,6 +67,7 @@ Todos los scripts han sido probados y validados. La sintaxis, estructura y funci
 - ✅ **Ejecutado exitosamente**: Creó 3 ligas, 4 equipos, 3 jugadores
 
 **Datos creados**:
+
 - ✅ Liga Profesional (128)
 - ✅ Premier League (39)
 - ✅ La Liga (140)
@@ -81,6 +88,7 @@ Todos los scripts han sido probados y validados. La sintaxis, estructura y funci
 **Uso**: `npx tsx scripts/migrateCacheToSchema.ts`
 
 **Funcionalidades**:
+
 - ✅ Lee documentos de `api_cache`
 - ✅ Detecta tipo de dato (liga, equipo, jugador, partido, standing)
 - ✅ Extrae y normaliza datos
@@ -92,6 +100,7 @@ Todos los scripts han sido probados y validados. La sintaxis, estructura y funci
 - ✅ Manejo de diferentes estructuras de datos
 
 **Tipos de Datos Soportados**:
+
 - Ligas
 - Equipos
 - Jugadores
@@ -99,6 +108,7 @@ Todos los scripts han sido probados y validados. La sintaxis, estructura y funci
 - Standings
 
 **Resultados de Prueba**:
+
 - ✅ Sintaxis correcta (verificado con `tsx --check`)
 - ✅ Tipos correctos
 - ✅ Importaciones correctas
@@ -111,11 +121,13 @@ Todos los scripts han sido probados y validados. La sintaxis, estructura y funci
   - Manejo de estructuras de datos variadas
 
 **Estadísticas de Migración**:
+
 - 📊 Documentos procesados: 2,181
 - 🔍 Partidos detectados: 1,825
-- ⚠️  Documentos no migrados: 356 (otros tipos)
+- ⚠️ Documentos no migrados: 356 (otros tipos)
 
 **Problemas Resueltos**:
+
 - ✅ Problema con campos `undefined` en Firestore
 - ✅ Problema con estructura de datos en `api_cache`
 - ✅ Problema con validación de fechas
@@ -132,11 +144,13 @@ Todos los scripts han sido probados y validados. La sintaxis, estructura y funci
 **Uso**: `npx tsx scripts/test-scripts.ts`
 
 **Funcionalidades**:
+
 - ✅ Valida sintaxis de todos los scripts
 - ✅ Verifica tipos TypeScript
 - ✅ Genera reporte de pruebas
 
 **Resultados de Prueba**:
+
 - ✅ Todos los scripts pasaron las pruebas de sintaxis
 - ✅ 3/3 scripts validados exitosamente
 
@@ -145,26 +159,31 @@ Todos los scripts han sido probados y validados. La sintaxis, estructura y funci
 ## 🔍 Validaciones Realizadas
 
 ### 1. Validación de Sintaxis
+
 - ✅ Todos los scripts tienen sintaxis correcta
 - ✅ Verificado con `tsx --check`
 - ✅ Sin errores de sintaxis
 
 ### 2. Validación de Tipos
+
 - ✅ Todos los tipos están correctamente definidos
 - ✅ Importaciones de tipos correctas
 - ✅ Compatibilidad con tipos de Firebase Admin
 
 ### 3. Validación de Estructura
+
 - ✅ Estructura de código correcta
 - ✅ Funciones bien definidas
 - ✅ Manejo de errores adecuado
 
 ### 4. Validación de Configuración
+
 - ✅ Verificación de inicialización de Firebase Admin
 - ✅ Mensajes de error claros
 - ✅ Instrucciones de configuración
 
 ### 5. Validación de Funcionalidad
+
 - ✅ Scripts ejecutados exitosamente
 - ✅ Datos creados correctamente
 - ✅ Migración funcionando (con mejoras)
@@ -191,11 +210,11 @@ Para ejecutar los scripts completamente, se requiere:
 
 ## 📊 Resultados de Pruebas
 
-| Script | Sintaxis | Tipos | Estructura | Manejo de Errores | Ejecución | Estado |
-|--------|----------|-------|------------|-------------------|-----------|--------|
-| `checkCollections.ts` | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
-| `seedFirebase.ts` | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
-| `migrateCacheToSchema.ts` | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
+| Script                    | Sintaxis | Tipos | Estructura | Manejo de Errores | Ejecución | Estado |
+| ------------------------- | -------- | ----- | ---------- | ----------------- | --------- | ------ |
+| `checkCollections.ts`     | ✅       | ✅    | ✅         | ✅                | ✅        | ✅     |
+| `seedFirebase.ts`         | ✅       | ✅    | ✅         | ✅                | ✅        | ✅     |
+| `migrateCacheToSchema.ts` | ✅       | ✅    | ✅         | ✅                | ✅        | ✅     |
 
 **Total**: 3/3 scripts pasaron todas las pruebas ✅
 
@@ -210,12 +229,12 @@ Para ejecutar los scripts completamente, se requiere:
 2. **Ejecutar Scripts**:
    - ✅ Ejecutar `checkCollections.ts` para verificar colecciones existentes (completado)
    - ✅ Ejecutar `seedFirebase.ts` para poblar datos iniciales (completado)
-   - ⚠️  Ejecutar `migrateCacheToSchema.ts` para migrar datos de `api_cache` (en progreso)
+   - ⚠️ Ejecutar `migrateCacheToSchema.ts` para migrar datos de `api_cache` (en progreso)
 
 3. **Validar Datos**:
    - ✅ Verificar que los datos se hayan creado correctamente (completado)
    - ✅ Validar relaciones entre entidades (completado)
-   - ⚠️  Revisar índices en Firestore (pendiente)
+   - ⚠️ Revisar índices en Firestore (pendiente)
 
 ---
 

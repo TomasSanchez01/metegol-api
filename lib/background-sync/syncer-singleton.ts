@@ -15,4 +15,3 @@ export function getSyncer(apiKey: string): DataSyncer {
 export function resetGlobalSyncer(): void {
   globalSyncer = null;
 }
-

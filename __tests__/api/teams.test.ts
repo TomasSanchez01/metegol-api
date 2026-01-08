@@ -28,9 +28,7 @@ describe("GET /api/teams/[id]", () => {
   });
 
   it("debe manejar equipos que no existen", async () => {
-    const request = new NextRequest(
-      "http://localhost:3000/api/teams/999999"
-    );
+    const request = new NextRequest("http://localhost:3000/api/teams/999999");
     const params = Promise.resolve({ id: "999999" });
     const response = await GET(request, { params });
     const data = await response.json();
@@ -57,4 +55,3 @@ describe("GET /api/teams/[id]", () => {
     expect([200, 500]).toContain(response.status);
   });
 });
-

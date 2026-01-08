@@ -55,6 +55,7 @@ Liga (1) ──< (N) Standing
 **Propósito**: Almacenar información de ligas y competiciones.
 
 **Estructura del documento**:
+
 ```json
 {
   "id": "128",
@@ -69,6 +70,7 @@ Liga (1) ──< (N) Standing
 ```
 
 **Campos**:
+
 - `id` (string): ID único de la liga (de la API externa)
 - `nombre` (string): Nombre de la liga
 - `pais` (string): País de la liga
@@ -79,6 +81,7 @@ Liga (1) ──< (N) Standing
 - `fecha_actualizacion` (timestamp): Fecha de última actualización
 
 **Índices sugeridos**:
+
 - `pais` (ascending)
 - `tipo` (ascending)
 - `temporada_actual` (ascending)
@@ -90,6 +93,7 @@ Liga (1) ──< (N) Standing
 **Propósito**: Almacenar información de equipos de fútbol.
 
 **Estructura del documento**:
+
 ```json
 {
   "id": "435",
@@ -112,6 +116,7 @@ Liga (1) ──< (N) Standing
 ```
 
 **Campos**:
+
 - `id` (string): ID único del equipo (de la API externa)
 - `nombre` (string): Nombre del equipo
 - `abreviatura` (string): Abreviatura del equipo (opcional)
@@ -127,6 +132,7 @@ Liga (1) ──< (N) Standing
 - `fecha_actualizacion` (timestamp): Fecha de última actualización
 
 **Índices sugeridos**:
+
 - `ligaId` (ascending)
 - `nombre` (ascending)
 - `ciudad` (ascending)
@@ -138,6 +144,7 @@ Liga (1) ──< (N) Standing
 **Propósito**: Almacenar información de jugadores.
 
 **Estructura del documento**:
+
 ```json
 {
   "id": "12345",
@@ -160,6 +167,7 @@ Liga (1) ──< (N) Standing
 ```
 
 **Campos**:
+
 - `id` (string): ID único del jugador (de la API externa)
 - `nombre` (string): Nombre del jugador
 - `apellido` (string): Apellido del jugador
@@ -178,6 +186,7 @@ Liga (1) ──< (N) Standing
 - `fecha_actualizacion` (timestamp): Fecha de última actualización
 
 **Índices sugeridos**:
+
 - `equipoId` (ascending)
 - `posicion` (ascending)
 - `nacionalidad` (ascending)
@@ -190,6 +199,7 @@ Liga (1) ──< (N) Standing
 **Propósito**: Almacenar formaciones/alineaciones de equipos para partidos específicos.
 
 **Estructura del documento**:
+
 ```json
 {
   "id": "form_12345_67890_20240115",
@@ -242,6 +252,7 @@ Liga (1) ──< (N) Standing
 ```
 
 **Campos**:
+
 - `id` (string): ID único de la formación (generado: `form_{equipoId}_{partidoId}_{fecha}`)
 - `equipoId` (string): ID del equipo (referencia a `equipos/{equipoId}`)
 - `partidoId` (string): ID del partido (referencia a `partidos/{partidoId}`)
@@ -257,6 +268,7 @@ Liga (1) ──< (N) Standing
 - `fecha_actualizacion` (timestamp): Fecha de última actualización
 
 **Índices sugeridos**:
+
 - `equipoId` (ascending)
 - `partidoId` (ascending)
 - `fecha` (descending)
@@ -270,6 +282,7 @@ Liga (1) ──< (N) Standing
 **Propósito**: Almacenar información de partidos/fixtures.
 
 **Estructura del documento**:
+
 ```json
 {
   "id": "12345",
@@ -335,6 +348,7 @@ Liga (1) ──< (N) Standing
 ```
 
 **Campos**:
+
 - `id` (string): ID único del partido (de la API externa)
 - `ligaId` (string): ID de la liga (referencia a `ligas/{ligaId}`)
 - `fecha` (timestamp): Fecha y hora del partido
@@ -348,6 +362,7 @@ Liga (1) ──< (N) Standing
 - `fecha_actualizacion` (timestamp): Fecha de última actualización
 
 **Índices sugeridos**:
+
 - `ligaId` (ascending)
 - `fecha` (descending)
 - `estado.corto` (ascending)
@@ -362,6 +377,7 @@ Liga (1) ──< (N) Standing
 **Propósito**: Almacenar tablas de posiciones de ligas.
 
 **Estructura del documento**:
+
 ```json
 {
   "id": "standings_128_2024",
@@ -395,6 +411,7 @@ Liga (1) ──< (N) Standing
 ```
 
 **Campos**:
+
 - `id` (string): ID único del standing (generado: `standings_{ligaId}_{temporada}`)
 - `ligaId` (string): ID de la liga (referencia a `ligas/{ligaId}`)
 - `temporada` (string): Temporada (ej: "2024")
@@ -404,6 +421,7 @@ Liga (1) ──< (N) Standing
 - `fecha_actualizacion` (timestamp): Fecha de última actualización del documento
 
 **Índices sugeridos**:
+
 - `ligaId` (ascending)
 - `temporada` (ascending)
 - `ligaId` + `temporada` (composite)
@@ -417,6 +435,7 @@ Esta colección se usa para cachear consultas que no devolvieron resultados, evi
 **ID del documento**: `empty_fixtures_{leagueId}_{date}` (ej: `empty_fixtures_128_2025-11-10`)
 
 **Campos**:
+
 - `leagueId` (string): ID de la liga consultada
 - `date` (string): Fecha consultada (formato: YYYY-MM-DD)
 - `has_matches` (boolean): Indica si había partidos o no
@@ -425,11 +444,13 @@ Esta colección se usa para cachear consultas que no devolvieron resultados, evi
 - `fecha_actualizacion` (timestamp): Fecha de última actualización del documento
 
 **Propósito**:
+
 - Evitar consultas repetidas a la API externa cuando no hay partidos
 - Cachear el resultado de consultas vacías por 24 horas
 - Optimizar el rendimiento al evitar llamadas innecesarias a la API
 
 **Índices sugeridos**:
+
 - `leagueId` (ascending)
 - `date` (ascending)
 - `leagueId` + `date` (composite)
@@ -489,6 +510,7 @@ Los endpoints espejo deberían seguir este flujo:
 ## 🔐 Seguridad
 
 Las reglas de Firestore deben configurarse para:
+
 - Permitir lectura pública de datos de fútbol (ligas, equipos, jugadores, partidos)
 - Restringir escritura solo al servidor (Admin SDK)
 - Mantener privacidad de datos administrativos
@@ -500,4 +522,3 @@ Ver `firestore.rules` para la configuración actual.
 - [Documentación de Firestore](https://firebase.google.com/docs/firestore)
 - [Índices de Firestore](https://firebase.google.com/docs/firestore/query-data/indexing)
 - [Mejores prácticas de Firestore](https://firebase.google.com/docs/firestore/best-practices)
-

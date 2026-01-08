@@ -3,6 +3,7 @@
 ## 📈 Estadísticas del Panel
 
 ### **Jobs Totales** (96 en tu ejemplo)
+
 - **Qué es**: El número total acumulado de trabajos (jobs) que se han creado desde que se inició el servidor.
 - **Qué es un Job**: Un trabajo individual de sincronización. Por ejemplo:
   - Sincronizar fixtures de la liga 128 para el 19/11/2025 = 1 job
@@ -12,34 +13,39 @@
 - **Importante**: Este número **nunca disminuye**, solo aumenta. Es un contador acumulativo.
 
 ### **Completados** (64 en tu ejemplo)
+
 - **Qué es**: El número total de jobs que se han completado exitosamente.
 - **Cuándo se actualiza**: Cada vez que un job termina sin errores.
 - **Importante**: Este número también es acumulativo y nunca disminuye.
 
 ### **Fallidos** (0 en tu ejemplo)
+
 - **Qué es**: El número total de jobs que han fallado durante la ejecución.
 - **Cuándo se actualiza**: Cuando un job lanza una excepción o error.
 - **Importante**: También es acumulativo.
 
 ### **Cola Actual** (0 en tu ejemplo)
+
 - **Qué es**: El número de jobs que están actualmente en la cola esperando ser procesados.
-- **Cuándo se actualiza**: 
+- **Cuándo se actualiza**:
   - Aumenta cuando se crean nuevos jobs (al ejecutar un sync)
   - Disminuye cuando los jobs se procesan (completados o fallidos)
   - Se limpia cuando se ejecuta "Limpiar Cola"
-- **Diferencia con Jobs Totales**: 
+- **Diferencia con Jobs Totales**:
   - **Jobs Totales** = todos los jobs que han existido (acumulativo)
   - **Cola Actual** = solo los jobs pendientes/ejecutándose ahora mismo
 
 ### **Jobs Ejecutándose** (0 en tu ejemplo)
+
 - **Qué es**: El número de jobs que están siendo procesados en este momento.
-- **Cuándo se actualiza**: 
+- **Cuándo se actualiza**:
   - Aumenta cuando un job pasa de "pending" a "running"
   - Disminuye cuando el job termina (completado o fallido)
 
 ### **API Calls Hoy** (47/7500 - 0.6% en tu ejemplo)
+
 - **Qué es**: El número de llamadas reales a la API externa de fútbol (api-sports.io) realizadas hoy.
-- **Cuándo se actualiza**: 
+- **Cuándo se actualiza**:
   - ✅ **SÍ se actualiza** cuando:
     - Un sync hace una llamada real a la API externa (no cuando lee de Firestore)
     - Un cliente fetchea un partido que NO está en Firestore y se consulta la API externa
@@ -52,11 +58,13 @@
   - **Recomendación**: Deberías implementar un reset diario a las 00:00 UTC para que sea preciso.
 
 ### **Datos Sincronizados** (20 en tu ejemplo)
+
 - **Qué es**: El número total de partidos (matches) que se han sincronizado exitosamente.
 - **Cuándo se actualiza**: Cada vez que un job completa y guarda partidos en Firestore.
 - **Importante**: Es acumulativo.
 
 ### **Última Sincronización** (19/11/2025, 04:25:51 en tu ejemplo)
+
 - **Qué es**: La fecha y hora de la última vez que se completó un proceso de sincronización.
 - **Cuándo se actualiza**: Cuando se termina de procesar al menos un job (incluso si hay errores).
 
@@ -67,16 +75,18 @@
 ### **Sincronización Forzada**
 
 #### **Forzar Hoy** 🔵
+
 - **Qué hace**: Fuerza la sincronización de todos los partidos de **hoy** (fecha actual), ignorando el cache y TTL.
 - **Cuándo usarlo**:
   - Cuando necesitas actualizar datos de partidos que están en vivo
   - Cuando sospechas que hay datos incorrectos en Firestore
   - Cuando quieres refrescar todos los partidos del día actual
-- **Qué sincroniza**: 
+- **Qué sincroniza**:
   - Fixtures de todas las ligas configuradas para hoy
   - Enriquecimiento de partidos que necesitan detalles (stats, events, lineups)
 
 #### **Forzar Ayer** 🟡
+
 - **Qué hace**: Fuerza la sincronización de todos los partidos de **ayer**, ignorando el cache y TTL.
 - **Cuándo usarlo**:
   - Cuando te perdiste sincronizar ayer y necesitas los datos
@@ -85,6 +95,7 @@
 - **Qué sincroniza**: Similar a "Forzar Hoy" pero para la fecha de ayer
 
 #### **Forzar Mañana** 🟢
+
 - **Qué hace**: Fuerza la sincronización de todos los partidos de **mañana** (fecha futura).
 - **Cuándo usarlo**:
   - Para pre-cargar partidos programados para mañana
@@ -97,6 +108,7 @@
 ### **Sincronizaciones Automáticas**
 
 #### **1. Sincronización Manual (Start Sync)** 🔄
+
 - **Qué hace**: Sincroniza los datos de **hoy** respetando el cache y TTL.
 - **Cuándo usarlo**:
   - Para una sincronización rápida de hoy
@@ -104,6 +116,7 @@
 - **Diferencia con "Forzar Hoy"**: Respeta el TTL y no fuerza actualizaciones innecesarias
 
 #### **2. Smart Sync** 🧠
+
 - **Qué hace**: Sincronización inteligente que decide qué sincronizar basándose en:
   - Hora del día (mañana, tarde, noche)
   - Partidos en vivo
@@ -118,6 +131,7 @@
   - **Noche (18:00-00:00)**: Partidos de hoy + mañana (pre-carga)
 
 #### **3. Sincronización Histórica** 📚
+
 - **Qué hace**: Sincroniza los últimos 30 días de partidos.
 - **Cuándo usarlo**:
   - **Solo una vez** cuando configuras el sistema por primera vez
@@ -126,6 +140,7 @@
 - **Advertencia**: Puede crear cientos o miles de jobs y consumir muchas API calls.
 
 #### **4. Sincronización de Ayer** ⏮️
+
 - **Qué hace**: Sincroniza solo los partidos de ayer.
 - **Cuándo usarlo**:
   - Cuando te perdiste sincronizar ayer
@@ -137,6 +152,7 @@
 ### **Control de Cola**
 
 #### **Detener** ⏹️
+
 - **Qué hace**: Detiene el procesamiento de la cola de jobs.
 - **Cuándo usarlo**:
   - Cuando quieres pausar la sincronización
@@ -145,6 +161,7 @@
 - **Importante**: Los jobs en la cola **NO se eliminan**, solo se detiene el procesamiento. Puedes reanudar después.
 
 #### **Limpiar Cola** 🗑️
+
 - **Qué hace**: Elimina todos los jobs pendientes de la cola.
 - **Cuándo usarlo**:
   - Cuando la cola tiene jobs obsoletos o innecesarios
@@ -155,6 +172,7 @@
 ---
 
 ### **Actualizar Estadísticas** 🔄
+
 - **Qué hace**: Refresca las estadísticas mostradas en el panel **sin ejecutar ningún sync**.
 - **Cuándo usarlo**:
   - Para ver las estadísticas actualizadas sin esperar el auto-refresh
@@ -204,6 +222,7 @@
 ## ⚠️ Recomendaciones Importantes
 
 ### **Reset de API Calls**
+
 Actualmente el contador `API Calls Hoy` **NO se resetea automáticamente** a las 00:00 UTC. Deberías implementar:
 
 ```typescript
@@ -213,13 +232,13 @@ Actualmente el contador `API Calls Hoy` **NO se resetea automáticamente** a las
 
 ### **Cuándo Usar Cada Tipo de Sync**
 
-| Situación | Sync Recomendado |
-|-----------|------------------|
-| Mantener datos actualizados | **Smart Sync** (cada hora) |
-| Primera configuración | **Sincronización Histórica** (una vez) |
-| Partidos en vivo | **Forzar Hoy** |
-| Recuperar datos perdidos | **Forzar Ayer** o **Sincronización de Ayer** |
-| Pre-cargar mañana | **Forzar Mañana** |
+| Situación                   | Sync Recomendado                             |
+| --------------------------- | -------------------------------------------- |
+| Mantener datos actualizados | **Smart Sync** (cada hora)                   |
+| Primera configuración       | **Sincronización Histórica** (una vez)       |
+| Partidos en vivo            | **Forzar Hoy**                               |
+| Recuperar datos perdidos    | **Forzar Ayer** o **Sincronización de Ayer** |
+| Pre-cargar mañana           | **Forzar Mañana**                            |
 
 ### **Monitoreo de API Calls**
 
@@ -238,4 +257,3 @@ Actualmente el contador `API Calls Hoy` **NO se resetea automáticamente** a las
 - **Smart Sync**: El método recomendado para uso regular
 - **Forzar**: Ignora cache y TTL, útil para actualizaciones inmediatas
 - **Reset API Calls**: Actualmente NO se resetea automáticamente (debería implementarse)
-

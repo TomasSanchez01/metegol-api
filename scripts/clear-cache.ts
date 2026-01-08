@@ -51,7 +51,8 @@ async function confirmPrompt(message: string) {
 
 function isExpired(doc: FirebaseFirestore.DocumentData) {
   try {
-    const ts = typeof doc.timestamp === "number" ? doc.timestamp : Number(doc.timestamp);
+    const ts =
+      typeof doc.timestamp === "number" ? doc.timestamp : Number(doc.timestamp);
     const ttl = typeof doc.ttl === "number" ? doc.ttl : Number(doc.ttl);
     if (!ts || !ttl) return false;
     return Date.now() > ts + ttl;
@@ -62,14 +63,18 @@ function isExpired(doc: FirebaseFirestore.DocumentData) {
 
 async function clearCache() {
   if (!adminDb) {
-    console.error("❌ adminDb no está inicializado. Revisa tu configuración de Firebase.");
+    console.error(
+      "❌ adminDb no está inicializado. Revisa tu configuración de Firebase."
+    );
     process.exit(1);
   }
 
   const colRef = adminDb.collection(COLLECTION);
 
   console.log(`🔎 Preparando limpieza de colección '${COLLECTION}'`);
-  console.log(`  Modo: ${DELETE_ALL ? "Borrar TODOS los documentos" : "Borrar solo documentos expirados"}`);
+  console.log(
+    `  Modo: ${DELETE_ALL ? "Borrar TODOS los documentos" : "Borrar solo documentos expirados"}`
+  );
   console.log(`  Batch size: ${BATCH_SIZE}`);
   if (LIMIT) console.log(`  Límite: ${LIMIT}`);
 
@@ -135,7 +140,9 @@ async function clearCache() {
       // eslint-disable-next-line no-await-in-loop
       await batch.commit();
       totalDeleted += toDelete;
-      console.log(`🗑️  Borrados ${toDelete} documentos (total borrados: ${totalDeleted})`);
+      console.log(
+        `🗑️  Borrados ${toDelete} documentos (total borrados: ${totalDeleted})`
+      );
     }
 
     // Move cursor forward
@@ -155,7 +162,9 @@ async function clearCache() {
     await new Promise(r => setTimeout(r, 200));
   }
 
-  console.log(`✅ Operación completada. Documentos eliminados: ${totalDeleted}`);
+  console.log(
+    `✅ Operación completada. Documentos eliminados: ${totalDeleted}`
+  );
 }
 
 clearCache().catch(err => {

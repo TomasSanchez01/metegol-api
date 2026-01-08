@@ -10,14 +10,14 @@ El proyecto utiliza Firestore para almacenar datos estructurados de fútbol, rep
 
 ### Colecciones Principales
 
-| Colección | Descripción | Campos Clave |
-|-----------|-------------|--------------|
-| `ligas` | Ligas y competiciones | `id`, `nombre`, `pais`, `logo`, `temporada_actual` |
-| `equipos` | Equipos de fútbol | `id`, `nombre`, `ligaId`, `estadio`, `entrenador` |
-| `jugadores` | Jugadores | `id`, `nombre`, `apellido`, `equipoId`, `posicion`, `dorsal` |
-| `formaciones` | Formaciones/alineaciones | `id`, `equipoId`, `partidoId`, `formacion`, `alineacion` |
-| `partidos` | Partidos/fixtures | `id`, `ligaId`, `fecha`, `equipo_local`, `equipo_visitante`, `goles` |
-| `standings` | Tablas de posiciones | `id`, `ligaId`, `temporada`, `posiciones` |
+| Colección     | Descripción              | Campos Clave                                                         |
+| ------------- | ------------------------ | -------------------------------------------------------------------- |
+| `ligas`       | Ligas y competiciones    | `id`, `nombre`, `pais`, `logo`, `temporada_actual`                   |
+| `equipos`     | Equipos de fútbol        | `id`, `nombre`, `ligaId`, `estadio`, `entrenador`                    |
+| `jugadores`   | Jugadores                | `id`, `nombre`, `apellido`, `equipoId`, `posicion`, `dorsal`         |
+| `formaciones` | Formaciones/alineaciones | `id`, `equipoId`, `partidoId`, `formacion`, `alineacion`             |
+| `partidos`    | Partidos/fixtures        | `id`, `ligaId`, `fecha`, `equipo_local`, `equipo_visitante`, `goles` |
+| `standings`   | Tablas de posiciones     | `id`, `ligaId`, `temporada`, `posiciones`                            |
 
 ### Relaciones entre Entidades
 
@@ -53,11 +53,13 @@ npx tsx scripts/populateInitialData.ts
 **Script principal de población inicial**. Carga información básica importante (ligas, equipos, formaciones) a Firestore por única vez, para tener poblada la base de datos.
 
 Este script:
+
 - Pobla ligas principales desde `STATIC_LEAGUES`
 - Obtiene equipos de las ligas principales desde la API externa
 - Obtiene formaciones de partidos recientes (opcional)
 
 **Requisitos**:
+
 - `FOOTBALL_API_KEY` configurada en `.env.local`
 - Credenciales de Firebase configuradas
 
@@ -91,6 +93,7 @@ Los tipos TypeScript para las entidades están definidos en `types/futbol.ts`:
 - `Standing`: Interface para la colección de standings
 
 También se incluyen tipos de ayuda:
+
 - `*Input`: Tipos para crear documentos (sin timestamps)
 - `*Update`: Tipos para actualizar documentos (campos opcionales)
 
@@ -163,6 +166,7 @@ Ver `firebase.indexes.json` para la configuración de índices.
 ### Seguridad
 
 Las reglas de Firestore deben configurarse para:
+
 - Permitir lectura pública de datos de fútbol (ligas, equipos, jugadores, partidos)
 - Restringir escritura solo al servidor (Admin SDK)
 - Mantener privacidad de datos administrativos

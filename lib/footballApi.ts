@@ -172,7 +172,7 @@ function initializeResetDate(): void {
     const now = new Date();
     globalLastResetDate = now.toISOString().split("T")[0]; // YYYY-MM-DD en UTC
     // console.log(
-      // `📅 Initializing API calls counter for date: ${globalLastResetDate} (UTC)`
+    // `📅 Initializing API calls counter for date: ${globalLastResetDate} (UTC)`
     // );
   }
 }
